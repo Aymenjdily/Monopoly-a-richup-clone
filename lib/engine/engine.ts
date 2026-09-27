@@ -6,6 +6,7 @@ import {
   canSellBuilding,
   rentDue,
   spaceIndicesOfOwner,
+  unmortgageCost,
 } from "./ownershipRules";
 import { passHost } from "./lobby";
 import { settingsOf } from "./settings";
@@ -395,9 +396,7 @@ function doUnmortgage(state: GameState, actor: Player, spaceIndex: number): Appl
   }
   const entry = state.ownership[spaceIndex];
   if (!entry.mortgaged) return { ok: false, state, events: [], error: "Not mortgaged." };
-  const mortgage = BOARD[spaceIndex].mortgageValue ?? 0;
-  const fee = Math.ceil(mortgage * 0.1);
-  const cost = mortgage + fee;
+  const cost = unmortgageCost(spaceIndex);
   if (actor.money < cost) {
     return { ok: false, state, events: [], error: "Not enough cash to unmortgage." };
   }

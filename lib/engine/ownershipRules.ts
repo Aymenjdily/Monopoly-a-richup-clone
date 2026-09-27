@@ -186,3 +186,9 @@ export function totalLiquidationValue(state: GameState, playerId: string): numbe
     0
   );
 }
+
+/** Price to lift a mortgage: the mortgage value plus a 10% fee (rounded up, integer dollars). */
+export function unmortgageCost(spaceIndex: number): number {
+  const mortgage = BOARD[spaceIndex]?.mortgageValue ?? 0;
+  return mortgage + Math.ceil(mortgage * 0.1);
+}

@@ -1,6 +1,6 @@
 "use client";
 
-/** Right-hand tabbed card (F3): History · My cities · Rules. */
+/** Right-hand tabbed card (F3 + G2): History · Guide · My cities · Rules. */
 import { Fragment, useMemo, useState } from "react";
 
 import { CITY_LANDMARK, SPACE_ICON } from "@/components/board3d/theme";
@@ -9,9 +9,10 @@ import { settingsOf } from "@/lib/engine/settings";
 import type { ClientGameState } from "@/lib/shared/events";
 
 import { AmountPill, SET_NAME } from "./bits";
+import { GuidePanel, useAdvice } from "./GuidePanel";
 import { buildHistory, filterHistory, formatMoney, type HistoryFilter } from "./history";
 
-export type SideTab = "history" | "cities" | "rules";
+export type SideTab = "history" | "guide" | "cities" | "rules";
 type Send = (action: { type: string; spaceIndex?: number }) => void;
 
 export function SideCard({
@@ -36,28 +37,36 @@ export function SideCard({
   /** Forfeit and leave (shown in the Rules tab for seated, still-playing players). */
   onLeave?: () => void;
 }) {
-  const TABS: [SideTab, string][] = [
-    ["history", "📜 History"],
-    ["cities", "🏙️ My cities"],
-    ["rules", "⚙️ Rules"],
+  const advice = useAdvice(state, myId);
+  // label shown, accessible name (G2: "📜 History · 💡 Guide · 🏙️ Cities · ⚙️")
+  const TABS: [SideTab, string, string][] = [
+    ["history", "📜 History", "History"],
+    ["guide", "💡 Guide", "Guide"],
+    ["cities", "🏙️ Cities", "My cities"],
+    ["rules", "⚙️", "Rules"],
   ];
   return (
     <div className="pointer-events-auto flex h-full flex-col rounded-[20px] border-[3px] border-ink bg-white px-[18px] py-3.5 shadow-[0_5px_0_#1f1b2e]">
-      <div className="flex gap-1.5" role="tablist">
-        {TABS.map(([t, label]) => (
+      <div className="flex gap-1" role="tablist">
+        {TABS.map(([t, label, name]) => (
           <button
             key={t}
             role="tab"
+            aria-label={name}
             aria-selected={tab === t}
             onClick={() => onTab(t)}
-            className={`whitespace-nowrap rounded-full border-[2.5px] px-3 py-[5px] text-[12.5px] font-black ${tab === t ? "border-ink bg-mango text-ink" : "border-transparent text-[#8a809b] hover:text-ink"}`}
+            className={`relative whitespace-nowrap rounded-full border-[2.5px] px-2.5 py-[5px] text-[12.5px] font-black ${tab === t ? "border-ink bg-mango text-ink" : "border-transparent text-[#8a809b] hover:text-ink"}`}
           >
             {label}
+            {t === "guide" && advice.urgent && tab !== "guide" && (
+              <span aria-hidden className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink bg-mango" />
+            )}
           </button>
         ))}
       </div>
       <div className="mt-1 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-width:thin]">
         {tab === "history" && <HistoryFeed state={state} myId={myId} />}
+        {tab === "guide" && <GuidePanel advice={advice} busy={busy} send={send} />}
         {tab === "cities" && <MyCities state={state} myId={myId} busy={busy} send={send} onOpenDeed={onOpenDeed} />}
         {tab === "rules" && <RulesList state={state} code={code} onLeave={onLeave} />}
       </div>

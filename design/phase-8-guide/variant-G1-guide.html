@@ -1,0 +1,128 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Variant G1 — Guide coach bubble</title><style>
+ * { margin: 0; box-sizing: border-box; }
+ :root { --ink:#1f1b2e; --coral:#ff6b81; --mango:#ffc53d; --mint:#7fe3a8; --lilac:#c9b8ff; --cream:#fffaf0; --muted:#a89fb5; }
+ html, body { width: 1600px; height: 1000px; overflow: hidden; }
+ body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); position: relative;
+   background: linear-gradient(180deg, #fff7ea 0%, #ffefd8 100%); }
+ .bg { position: absolute; background: url(../phase-6-hud/board-bg.png) no-repeat center/100% 100%;
+   -webkit-mask-image: linear-gradient(to right, transparent, #000 9%, #000 91%, transparent), linear-gradient(to bottom, transparent, #000 9%, #000 91%, transparent);
+   -webkit-mask-composite: source-in; mask-composite: intersect; }
+ .card { background: #fff; border: 3px solid var(--ink); border-radius: 20px; box-shadow: 0 5px 0 var(--ink); }
+ .h { font: 900 13px "Segoe UI Black", "Segoe UI"; letter-spacing: .14em; color: var(--muted); }
+ .dot { width: 14px; height: 14px; border-radius: 50%; border: 2.5px solid var(--ink); flex: none; }
+ .chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 900; border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; background: #fff; white-space: nowrap; }
+ .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 3px solid var(--ink); border-radius: 15px; padding: 11px 18px; font: 900 16px "Segoe UI Black", "Segoe UI"; box-shadow: 0 4px 0 var(--ink); background: #fff; white-space: nowrap; }
+ .btn.mint { background: var(--mint); } .btn.coral { background: var(--coral); color: #fff; } .btn.ink { background: var(--ink); color: #fff; box-shadow: 0 4px 0 rgba(31,27,46,.3); }
+ .btn.ghost { opacity: .45; }
+ .btn.sm { padding: 7px 12px; font-size: 13px; border-radius: 12px; box-shadow: 0 3px 0 var(--ink); }
+ .die { width: 38px; height: 38px; border: 3px solid var(--ink); border-radius: 10px; background: #fff; display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); padding: 5px; box-shadow: 0 3px 0 var(--ink); }
+ .die.c { background: var(--coral); } .die i { width: 6px; height: 6px; border-radius: 50%; background: var(--ink); place-self: center; } .die.c i { background: #fff; }
+
+ /* players */
+ .pl { display: flex; align-items: center; gap: 10px; padding: 10px 12px; }
+ .pl .pawn { width: 34px; height: 34px; border-radius: 11px; border: 2.5px solid var(--ink); display: grid; place-items: center; flex: none; }
+ .pl .pawn svg { display: block; }
+ .pl .nm { font-weight: 900; font-size: 15px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+ .pl .sub { white-space: nowrap; }
+ .pl .nm small { font: 800 12px "Segoe UI"; color: #b6adc4; }
+ .pl .sub { font-size: 11.5px; font-weight: 800; color: #8a809b; display: flex; gap: 6px; align-items: center; margin-top: 1px; }
+ .pl .cash { margin-left: auto; font: 900 18px "Segoe UI Black", "Segoe UI"; }
+ .pl.turn { background: #fff7dc; box-shadow: inset 0 0 0 3px var(--mango); border-radius: 14px; }
+ .tag { font-size: 9.5px; font-weight: 900; letter-spacing: .08em; border: 2px solid var(--ink); border-radius: 999px; padding: 0 6px; background: var(--b, #fff); }
+
+ /* history */
+ .turnsep { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 900; letter-spacing: .12em; color: var(--muted); margin: 10px 0 4px; }
+ .turnsep::after { content: ""; flex: 1; height: 2px; background: #eee5d6; border-radius: 2px; }
+ .turnsep .dot { width: 10px; height: 10px; border-width: 2px; }
+ .ev { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-size: 13.5px; font-weight: 700; color: #4a4258; }
+ .ev .ic { width: 30px; height: 30px; border-radius: 9px; border: 2.5px solid var(--ink); display: grid; place-items: center; font-size: 14px; flex: none; background: var(--t, #fff); }
+ .ev b { color: var(--ink); font-weight: 900; }
+ .ev .amt { margin-left: auto; font: 900 12.5px "Segoe UI Black", "Segoe UI"; border: 2px solid var(--ink); border-radius: 999px; padding: 1px 8px; white-space: nowrap; }
+ .amt.plus { background: var(--mint); } .amt.minus { background: #ffd0d8; } .amt.pot { background: var(--lilac); }
+ .ev.now { background: #fff7dc; border-radius: 12px; padding: 6px 8px; margin: 0 -8px; box-shadow: inset 0 0 0 2.5px var(--mango); }
+ .tabs { display: flex; gap: 6px; }
+ .tabs b { font-size: 12.5px; font-weight: 900; padding: 5px 11px; border-radius: 999px; border: 2.5px solid transparent; color: #8a809b; }
+ .tabs b.on { border-color: var(--ink); background: var(--mango); color: var(--ink); }
+ .fade { position: relative; }
+ .fade::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 40px; background: linear-gradient(transparent, #fff); pointer-events: none; }
+
+ .bg { left:40px; top:120px; width:1300px; height:812.5px; }
+ .coach { position:absolute; background:#fff; border:3px solid var(--ink); border-radius:22px; box-shadow:0 6px 0 var(--ink), 18px 22px 0 rgba(31,27,46,.08); }
+ .mascot { width:46px; height:46px; border-radius:15px; border:3px solid var(--ink); background:var(--mango); display:grid; place-items:center; font-size:24px; flex:none; box-shadow:0 3px 0 var(--ink); }
+ .why { list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:5px; }
+ .why li { display:flex; gap:8px; align-items:flex-start; font-size:13px; font-weight:700; color:#4a4258; }
+ .why li b { color:var(--ink); }
+ .ok, .no, .warn { flex:none; width:18px; height:18px; border-radius:6px; border:2px solid var(--ink); display:grid; place-items:center; font-size:10px; font-weight:900; margin-top:1px; }
+ .ok { background:var(--mint); } .no { background:#ffd0d8; } .warn { background:#ffe3a3; }
+ .gsec { font-size:11px; font-weight:900; letter-spacing:.14em; color:var(--muted); margin:12px 0 6px; display:flex; align-items:center; gap:8px; }
+ .gsec::after { content:""; flex:1; height:2px; background:#eee5d6; border-radius:2px; }
+ .gcard { border:2.5px solid var(--ink); border-radius:16px; padding:10px 12px; background:#fffaf0; }
+ .gcard.now { background:#fff7dc; box-shadow:inset 0 0 0 2.5px var(--mango); border-color:var(--ink); }
+ .gcard h4 { font:900 15px "Segoe UI Black","Segoe UI"; display:flex; align-items:center; gap:8px; }
+ .gcard p { font-size:12.5px; font-weight:700; color:#6f6580; margin-top:3px; }
+ .tag2 { font-size:10px; font-weight:900; letter-spacing:.08em; border:2px solid var(--ink); border-radius:999px; padding:0 7px; margin-left:auto; }
+ .pin { position:absolute; display:flex; align-items:center; gap:6px; background:#fff; border:2.5px solid var(--ink); border-radius:999px; padding:4px 10px; font-size:12px; font-weight:900; box-shadow:0 3px 0 var(--ink); white-space:nowrap; }
+ .pin::after { content:""; position:absolute; left:18px; bottom:-9px; border:6px solid transparent; border-top-color:var(--ink); }
+ .ring { position:absolute; border:3px dashed var(--coral); border-radius:14px; }
+ .toggle { display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:900; border:2.5px solid var(--ink); border-radius:999px; padding:2px 4px 2px 9px; background:#fff; }
+ .toggle i { width:30px; height:18px; border-radius:999px; border:2px solid var(--ink); background:var(--mint); position:relative; font-style:normal; }
+ .toggle i::after { content:""; position:absolute; top:1px; left:13px; width:12px; height:12px; border-radius:50%; background:#fff; border:2px solid var(--ink); }
+</style></head><body><div class="bg"></div>
+<div style="position:absolute;left:24px;top:22px;display:flex;gap:10px">
+  <div class="card" style="padding:2px 4px;border-radius:18px;width:296px">
+  <div class="pl turn"><div class="pawn" style="background:#e5484d"><svg width="16" height="20" viewBox="0 0 16 20"><circle cx="8" cy="5" r="3.6" fill="#fff" stroke="#1f1b2e" stroke-width="1.8"/><path d="M4.5 18 C5 13 6.3 11 6.5 9 L9.5 9 C9.7 11 11 13 11.5 18 Z" fill="#fff" stroke="#1f1b2e" stroke-width="1.8" stroke-linejoin="round"/><rect x="2.5" y="16.6" width="11" height="2.6" rx="1.3" fill="#fff" stroke="#1f1b2e" stroke-width="1.6"/></svg></div>
+    <div><div class="nm">Sasha <small>(you)</small></div>
+    <div class="sub">4 cities · 1 hotel</div></div>
+    <div class="cash">$1,240</div></div></div><div class="card" style="padding:2px 4px;border-radius:18px;width:296px">
+  <div class="pl "><div class="pawn" style="background:#f5a623"><svg width="16" height="20" viewBox="0 0 16 20"><circle cx="8" cy="5" r="3.6" fill="#fff" stroke="#1f1b2e" stroke-width="1.8"/><path d="M4.5 18 C5 13 6.3 11 6.5 9 L9.5 9 C9.7 11 11 13 11.5 18 Z" fill="#fff" stroke="#1f1b2e" stroke-width="1.8" stroke-linejoin="round"/><rect x="2.5" y="16.6" width="11" height="2.6" rx="1.3" fill="#fff" stroke="#1f1b2e" stroke-width="1.6"/></svg></div>
+    <div><div class="nm">Juno</div>
+    <div class="sub">4 cities · 5 houses</div></div>
+    <div class="cash">$860</div></div></div><div class="card" style="padding:2px 4px;border-radius:18px;width:296px">
+  <div class="pl "><div class="pawn" style="background:#f7cf3c"><svg width="16" height="20" viewBox="0 0 16 20"><circle cx="8" cy="5" r="3.6" fill="#fff" stroke="#1f1b2e" stroke-width="1.8"/><path d="M4.5 18 C5 13 6.3 11 6.5 9 L9.5 9 C9.7 11 11 13 11.5 18 Z" fill="#fff" stroke="#1f1b2e" stroke-width="1.8" stroke-linejoin="round"/><rect x="2.5" y="16.6" width="11" height="2.6" rx="1.3" fill="#fff" stroke="#1f1b2e" stroke-width="1.6"/></svg></div>
+    <div><div class="nm">Dice Bot <span class="tag" style="--b:#c9b8ff">BOT</span> <span class="tag" style="--b:#ffab5e">IN JAIL</span></div>
+    <div class="sub">2 cities · 1 mortgaged</div></div>
+    <div class="cash">$1,020</div></div></div><div class="card" style="padding:2px 4px;border-radius:18px;width:296px">
+  <div class="pl "><div class="pawn" style="background:#46a758"><svg width="16" height="20" viewBox="0 0 16 20"><circle cx="8" cy="5" r="3.6" fill="#fff" stroke="#1f1b2e" stroke-width="1.8"/><path d="M4.5 18 C5 13 6.3 11 6.5 9 L9.5 9 C9.7 11 11 13 11.5 18 Z" fill="#fff" stroke="#1f1b2e" stroke-width="1.8" stroke-linejoin="round"/><rect x="2.5" y="16.6" width="11" height="2.6" rx="1.3" fill="#fff" stroke="#1f1b2e" stroke-width="1.6"/></svg></div>
+    <div><div class="nm">Marek</div>
+    <div class="sub">4 cities</div></div>
+    <div class="cash">$430</div></div></div>
+</div>
+<div class="card" style="position:absolute;right:24px;top:110px;bottom:24px;width:360px;padding:14px 18px;display:flex;flex-direction:column">
+  <div class="tabs"><b class="on">📜 History</b><b>🏙️ My cities</b><b>⚙️ Rules</b></div>
+  <div class="fade" style="flex:1;overflow:hidden;margin-top:4px"><div class="turnsep"><span class="dot" style="background:#e5484d"></span>TURN 15 · SASHA · NOW</div><div class="ev "><div class="ic" style="--t:#fff1c4">🎲</div><div><b>Sasha</b> rolled 4 + 3 → <b>Istanbul</b></div></div><div class="ev now"><div class="ic" style="--t:#fffaf0">🕌</div><div><b>Istanbul</b> is for sale</div><span class="amt" style="background:#fff">$240</span></div><div class="turnsep"><span class="dot" style="background:#46a758"></span>TURN 14 · MAREK</div><div class="ev "><div class="ic" style="--t:#fff1c4">🎲</div><div><b>Marek</b> rolled 2 + 2 (doubles) → <b>Madrid</b></div></div><div class="ev "><div class="ic" style="--t:#ffe3e8">💸</div><div><b>Marek</b> paid <b>Sasha</b> rent for Madrid</div><span class="amt plus">+$180</span></div><div class="turnsep"><span class="dot" style="background:#f7cf3c"></span>TURN 13 · DICE BOT</div><div class="ev "><div class="ic" style="--t:#ffdbe1">🚔</div><div><b>Dice Bot</b> went to jail</div></div><div class="turnsep"><span class="dot" style="background:#f5a623"></span>TURN 12 · JUNO</div><div class="ev "><div class="ic" style="--t:#eee8ff">🃏</div><div><b>Juno</b> drew Chance: <i>Advance to GO</i></div></div><div class="ev "><div class="ic" style="--t:#dcf6e8">➡️</div><div><b>Juno</b> passed GO</div><span class="amt plus">+$200</span></div><div class="ev "><div class="ic" style="--t:#e3f8ec">🏠</div><div><b>Juno</b> built a house on <b>Osaka</b></div><span class="amt minus">−$50</span></div><div class="ev "><div class="ic" style="--t:#ece6ff">🅿️</div><div>Income Tax went to the jackpot</div><span class="amt pot">pot $350</span></div></div>
+</div>
+<div style="position:absolute;left:470px;top:250px;width:380px">
+  <div class="card" style="border-radius:26px;padding:0;overflow:hidden;box-shadow:0 8px 0 #1f1b2e, 22px 26px 0 rgba(31,27,46,.12)">
+    <div style="background:#e6ded0;border-bottom:3px solid #1f1b2e;padding:14px 18px;display:flex;align-items:center;gap:12px">
+      <div style="font-size:44px;line-height:1">🕌</div>
+      <div><div class="h" style="color:#6f6580">FOR SALE · TURKEY</div><div style="font:900 30px 'Segoe UI Black';line-height:1">Istanbul</div></div>
+      <div style="margin-left:auto"><svg viewBox="0 0 30 20" width="42" height="28" style="border:2.5px solid #1f1b2e;border-radius:5px;display:block"><rect width="30" height="20" fill="#e30a17"/><circle cx="12" cy="10" r="5" fill="#fff"/><circle cx="13.3" cy="10" r="4" fill="#e30a17"/><polygon points="18.2,10 21.6,8.8 19.5,11.8 19.5,8.2 21.6,11.2" fill="#fff"/></svg></div>
+    </div>
+    <div style="padding:12px 18px 16px">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#1f1b2e"><span>Rent</span><b>$20</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With full Turkey set</span><b>$40</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With 1 house</span><b>$100</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With 2 houses</span><b>$300</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With 3 houses</span><b>$750</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With 4 houses</span><b>$925</b></div><div style="display:flex;justify-content:space-between;padding:5px 0;border-bottom:2px dashed #eee5d6;font-size:14px;font-weight:800;color:#6f6580"><span>With a hotel</span><b>$1,100</b></div>
+      <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;font-weight:800;color:#8a809b"><span>House $150 each</span><span>Mortgage $120</span><span>Antalya: Dice Bot</span></div>
+      <div style="display:flex;gap:10px;margin-top:14px"><span class="btn mint" style="flex:1">Buy · $240</span><span class="btn">Decline</span></div>
+      <div style="text-align:center;font-size:12px;font-weight:800;color:#8a809b;margin-top:10px">You have $1,240 · after buying $1,000</div>
+    </div>
+  </div>
+</div>
+<div class="card" style="position:absolute;left:24px;bottom:24px;padding:10px 14px;display:flex;align-items:center;gap:12px;border-radius:22px">
+  <div style="display:flex;gap:6px"><div class="die c"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div><div class="die"><i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i></div></div><div><div style="font:900 16px 'Segoe UI Black'">Your turn · 7</div><div style="font-size:12px;font-weight:800;color:#8a809b">Turn 15</div></div>
+  <span class="btn ink ghost sm" style="margin-left:6px">End turn</span><span class="btn sm">🏗️ Build</span><span class="btn sm">🏦 Mortgage</span>
+</div>
+
+<div class="coach" style="left:24px;bottom:152px;width:432px;padding:14px 16px">
+  <div style="display:flex;gap:12px;align-items:center">
+    <div class="mascot">🎓</div>
+    <div><div class="h">YOUR COACH · TIP 1 OF 3</div><div style="font:900 18px 'Segoe UI Black'">Buy Istanbul — it's a good deal</div></div>
+    <span class="toggle" style="margin-left:auto">Hints<i></i></span>
+  </div>
+  <ul class="why">
+    <li><span class="ok">✓</span><span>Starts your <b>Turkey</b> set — Antalya &amp; Izmir are still unowned or cheap to trade for later.</span></li>
+    <li><span class="ok">✓</span><span>Red cities get landed on often (players leaving jail pass them).</span></li>
+    <li><span class="ok">✓</span><span>You keep <b>$1,000</b> — well above a safe $300 reserve.</span></li>
+  </ul>
+  <div style="display:flex;gap:8px;margin-top:12px">
+    <span class="btn mint sm" style="flex:1">Buy Istanbul · $240</span><span class="btn sm">Why these tips?</span><span class="btn sm">Next tip ›</span>
+  </div>
+</div><div style="position:absolute;left:24px;bottom:112px;display:flex;gap:6px"><span class="chip" style="background:#ece6ff">🅿️ Jackpot $350</span><span class="chip">💵 $1,500 · GO $200</span></div></body></html>

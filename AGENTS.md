@@ -47,6 +47,9 @@ engine design, the state sync model, and the UI.
 - 2D HTML UI panels around the 3D canvas: players, money, action buttons, game log, property card modal
 - Sound effects (synthesized with the Web Audio API, no audio files): moves, dice, money,
   jail, cards, turn chime, win; mute + volume remembered per device. Decoration only.
+- In-game guide ("💡 Guide" tab): advice on what to buy, build, mortgage, jail choices and
+  dangers ahead. Computed by the pure `lib/engine/advisor.ts` from public state only; the client
+  may run it because advice is not rule enforcement (the server still validates every action).
 - Lobby music: one synthesized looping tune in the lobby only (on/off toggle, remembered per
   device, fades out when the game starts). No music on the home page or in the game.
 - Persistence: games survive a server restart (Postgres via Prisma + Neon)
