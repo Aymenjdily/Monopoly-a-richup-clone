@@ -1,0 +1,104 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  /* Variant A — "Classic felt": wooden frame, felt bed, saturated colors, 55° tilt */
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1600px; height: 1000px; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif;
+         color: #f2e8d5;
+         background:
+           radial-gradient(1000px 700px at 20% 0%, #1d3d2b 0%, transparent 60%),
+           radial-gradient(900px 700px at 90% 100%, #241a10 0%, transparent 55%),
+           #12241a;
+         display: flex; align-items: center; justify-content: center; }
+  .scene { perspective: 1700px; }
+  .board { width: 1010px; height: 1010px; transform: rotateX(42deg) rotateZ(0deg); transform-style: preserve-3d;
+           border-radius: 22px;
+           box-shadow: 0 90px 90px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.06);
+           background: #14261b;
+           border: 22px solid #7a5a34; }
+  .cap { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center;
+         font-size: 22px; font-weight: 800; color: #c9a86a; letter-spacing: .2em; }
+  svg text { font-family: "Segoe UI", system-ui, sans-serif; }
+</style></head>
+<body><script>window.addEventListener("error", e => { const d = document.createElement("div"); d.style.cssText="position:fixed;top:6px;left:6px;background:#300;color:#fff;padding:8px;font-size:14px;z-index:99"; d.textContent = "ERR: " + e.message; document.body.appendChild(d); });</script><div class="scene"><div id="board" class="board"></div></div>
+<div class="cap">VARIANT A — CLASSIC FELT · 55° TOP-DOWN · WOOD + FELT</div>
+<script>
+const G = { brown:"#8a5a33", lightblue:"#a8dcf0", pink:"#d94a97", orange:"#f7941d", red:"#e02a30", yellow:"#f6cf40", green:"#2fa45c", darkblue:"#0d76c0" };
+const BOARD = [
+  ["GO","corner"], ["Mediterranean Ave","prop","brown"], ["Community Chest","card"], ["Baltic Ave","prop","brown"],
+  ["Income Tax","tax"], ["Reading RR","rr"], ["Oriental Ave","prop","lightblue"], ["Chance","card"],
+  ["Vermont Ave","prop","lightblue"], ["Connecticut Ave","prop","lightblue"], ["Jail","corner"],
+  ["St. Charles Pl","prop","pink"], ["Electric Co","prop","utility"], ["States Ave","prop","pink"], ["Virginia Ave","prop","pink"],
+  ["Penn RR","rr"], ["St. James Pl","prop","orange"], ["Community Chest","card"], ["Tennessee Ave","prop","orange"],
+  ["New York Ave","prop","orange"], ["Free Parking","corner"], ["Kentucky Ave","prop","red"], ["Chance","card"],
+  ["Indiana Ave","prop","red"], ["Illinois Ave","prop","red"], ["B&O RR","rr"], ["Atlantic Ave","prop","yellow"],
+  ["Ventnor Ave","prop","yellow"], ["Water Works","prop","utility"], ["Marvin Gardens","prop","yellow"],
+  ["Go To Jail","corner"], ["Pacific Ave","prop","green"], ["North Carolina","prop","green"], ["Community Chest","card"],
+  ["Pennsylvania Ave","prop","green"], ["Short Line","rr"], ["Chance","card"], ["Park Place","prop","darkblue"],
+  ["Luxury Tax","tax"], ["Boardwalk","prop","darkblue"]
+];
+const cell = 92, C = cell * 11, ink = "#3e3220", tile = "#f2e5c4";
+const el = document.getElementById("board");
+el.innerHTML = `<svg width="966" height="966" viewBox="0 0 ${C} ${C}" style="display:block;margin:auto;border-radius:6px">
+  <rect width="${C}" height="${C}" fill="transparent" />
+  <rect x="${cell}" y="${cell}" width="${C-2*cell}" height="${C-2*cell}" fill="#183324" opacity="0.6"/>
+  <text x="${C/2}" y="${C/2 - 20}" text-anchor="middle" font-size="64" font-weight="900" fill="#f6e7c9" font-family="Georgia, serif">Dice &amp; Deeds</text>
+  <text x="${C/2}" y="${C/2 + 28}" text-anchor="middle" font-size="20" letter-spacing="10" fill="#c9a86a" font-family="Georgia, serif">CLASSIC FELT</text>
+  <g id="t"></g></svg>`;
+const layer = el.querySelector("#t");
+let svg = "";
+function tileRect(idx, col, row, side) {
+  const [name, type, group] = BOARD[idx];
+  const x = col * cell, y = row * cell;
+  const colors = { brown:G.brown, lightblue:G.lightblue, pink:G.pink, orange:G.orange, red:G.red, yellow:G.yellow, green:G.green, darkblue:G.darkblue, rr:"#33383d", utility:"#b9c4cc", card:"#e4d7b8", tax:"#e4d7b8", corner:"#e8dcbd" };
+  const fill = type === "prop" ? tile : colors[type] ?? tile;
+  const barColor = { prop: colors[group], rr:"#3a3f45", utility:"#9aa8b2", card:"#c9a86a", tax:"#c9a86a" }[type] ?? "";
+  const strip = 9;
+  if (side === "bottom") bar = barColor ? `<rect x="${x+3}" y="${y}" width="${cell-6}" height="${strip}" fill="${barColor}" rx="2"/>` : "";
+  if (side === "top") bar = barColor ? `<rect x="${x+3}" y="${y+cell-strip}" width="${cell-6}" height="${strip}" fill="${barColor}" rx="2"/>` : "";
+  if (side === "left") bar = barColor ? `<rect x="${x}" y="${y+3}" width="${strip}" height="${cell-6}" fill="${barColor}" rx="2"/>` : "";
+  if (side === "right") bar = barColor ? `<rect x="${x+cell-strip}" y="${y+3}" width="${strip}" height="${cell-6}" fill="${barColor}" rx="2"/>` : "";
+  const fontSize = type === "corner" ? 20 : 10.5;
+  const tx = x + cell/2, ty = type === "corner" ? y + cell/2 + 6 : (side === "bottom" ? y + cell - 12 : side === "top" ? y + 22 : y + cell/2 + 4);
+  const txRot = (side === "left" || side === "right") ? `<text transform="rotate(${-90} ${x + (side==="left"?cell-6:6)} ${y+cell/2})" x="${x + (side==="left"?cell-6:6)}" y="${y+cell/2}" ...>` : "";
+  svg += `<rect x="${x+2}" y="${y+2}" width="${cell-4}" height="${cell-4}" fill="${fill}" rx="7" stroke="${ink}" stroke-width="2.5"/>${bar}`;
+  if (type === "corner") {
+    svg += `<text x="${tx}" y="${ty}" text-anchor="middle" font-size="20" font-weight="900" fill="#594a2e">${name.toUpperCase()}</text>`;
+  } else {
+    const lx = side === "left" ? x + 26 : side === "right" ? x + cell - 26 : tx;
+    const ly = side === "bottom" ? y + cell - 16 : side === "top" ? y + 26 : y + cell / 2 + 4;
+    if (side === "left" || side === "right") {
+      const rx = side === "left" ? x + 30 : x + cell - 18;
+      svg += `<text transform="rotate(${side === "left" ? 90 : -90} ${rx} ${y + cell/2})" x="${rx}" y="${y + cell/2}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#594a2e">${name}</text>`;
+      if (barColor) svg += "";
+    } else {
+      svg += `<text x="${tx}" y="${ly}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#594a2e">${name}</text>`;
+    }
+  }
+}
+for (let i = 1; i <= 9; i++) tileRect(i, 10 - i, 10, "bottom");
+for (let i = 11; i <= 19; i++) tileRect(i, 0, 10 - (i - 10), "left");
+for (let i = 21; i <= 29; i++) tileRect(i, i - 20, 0, "top");
+for (let i = 31; i <= 39; i++) tileRect(i, 10, i - 40 + 10, "right");
+tileRect(0, 10, 10, "corner");
+tileRect(10, 0, 10, "corner");
+tileRect(20, 0, 0, "corner");
+tileRect(30, 10, 0, "corner");
+layer.innerHTML = svg;
+// tokens on a few bottom-row tiles (single family for the A moodboard)
+(function tokens() {
+  const spots = [[1, -14], [1, 14], [3, -14], [3, 14], [8, -14], [8, 14]];
+  const colors = ["#e5484d", "#f5a623", "#f7cf3c", "#46a758", "#0072bb", "#a459d1"];
+  const tileCoords = { 1: [10 - 1, 10], 3: [10 - 3, 10], 8: [10 - 8, 10] };
+  const extra = [];
+  spots.forEach(([idx, off], si) => {
+    const [col, row] = tileCoords[idx];
+    const cx = col * cell + cell / 2 + off, cy = row * cell + cell / 2 - 0;
+    extra.push(`<circle cx="${cx}" cy="${cy}" r="9" fill="${colors[si]}" stroke="rgba(0,0,0,.45)" stroke-width="3"/>`);
+  });
+  layer.innerHTML = svg + extra.join("");
+})();
+</script>
+</body>
+</html>

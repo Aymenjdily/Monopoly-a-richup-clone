@@ -1,0 +1,265 @@
+﻿<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<title>Variant C2 — Toon field · real depth · flag tiles</title>
+<style>
+ * { margin: 0; box-sizing: border-box; }
+ body { width: 1600px; height: 1000px; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif; color: #1f1b2e;
+     background:
+      radial-gradient(1100px 800px at 84% 6%, rgba(255,107,129,.16), transparent 62%),
+      radial-gradient(1000px 760px at 10% 100%, rgba(201,184,255,.20), transparent 60%),
+      radial-gradient(900px 700px at 96% 96%, rgba(127,227,168,.16), transparent 58%),
+      radial-gradient(1200px 900px at 28% 18%, rgba(255,197,61,.18), transparent 66%),
+      linear-gradient(180deg, #fff7ea 0%, #f6ead2 100%);
+     display: flex; align-items: center; justify-content: center; }
+
+ .scene { perspective: 1150px; perspective-origin: 50% 24%; }
+ .board-wrap { transform: rotateX(47deg) rotateZ(-6deg) scale(0.88); transform-style: preserve-3d; }
+
+ .board { width: 940px; height: 940px; border-radius: 30px; background: #fffdf6;
+      border: 7px solid #1f1b2e; position: relative; transform-style: preserve-3d;
+      box-shadow:
+       0 10px 0 #1f1b2e,
+       0 15px 0 #565066,
+       0 20px 0 #6f6681,
+       0 24px 0 rgba(31,27,46,.35),
+       70px 100px 100px rgba(31,27,46,.30); }
+
+ .cell { position: absolute; background: #fffcf3; border: 3px solid #1f1b2e; border-radius: 13px;
+     box-shadow: 0 3px 0 #22203535, 0 5px 0 #e3dac9, 0 9px 0 #d0c4ae, 0 13px 11px rgba(31,27,46,.22); }
+
+ .bar { position: absolute; height: 25px; left: 7px; right: 7px; top: 7px;
+     display: flex; align-items: center; gap: 6px; padding: 0 8px;
+     border: 3px solid #1f1b2e; border-radius: 9px; background: var(--g);
+     box-shadow: 0 3px 0 #1f1b2e; z-index: 2;
+     font-size: 13px; font-weight: 900; white-space: nowrap; }
+ .strip { position: absolute; border: 3px solid #1f1b2e; border-radius: 8px; background: var(--g);
+
+      box-shadow: 0 3px 0 #1f1b2e; z-index: 2; display: grid; place-items: center; }
+
+ .strip2 { position: absolute; border: 3px solid #1f1b2e; border-radius: 8px; background: var(--g);
+
+      box-shadow: 0 3px 0 #1f1b2e; z-index: 2; }
+
+ .body { position: absolute; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+
+     gap: 4px; text-align: center; z-index: 1; }
+
+ .strip2, .bar { background: var(--g); }
+
+ .body > div:first-child { filter: drop-shadow(0 1px 0 rgba(255,255,255,.8)); }
+ .vlabel { position: absolute; top: 6px; bottom: 6px; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 5px; text-align: center; }
+ .vlabel b { font-size: 12.5px; font-weight: 900; line-height: 1.05; max-width: 46px; }
+ .nm { position: absolute; inset: 44px 6px 7px 6px; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start; gap: 4px; text-align: center; }
+ .nm b { font-size: 13.5px; font-weight: 900; line-height: 1.02; }
+ .nm s { text-decoration: none; font-size: 9px; font-weight: 900; letter-spacing: .1em; color: #a89fb5; }
+
+ .center { position: absolute; inset: 11%; border-radius: 26px; background: #fffdf6;
+      border: 5px solid #1f1b2e; box-shadow: 0 9px 0 #1f1b2e, 0 18px 34px rgba(31,27,46,.16);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; }
+ .logo { font-size: 84px; font-weight: 900; letter-spacing: -.045em; line-height: .98; }
+ .logo em { font-style: normal; color: #ff6b81; }
+ .tag { margin-top: 10px; font-size: 16px; font-weight: 900; letter-spacing: .34em; color: #a89fb5; }
+ .dice { margin-top: 30px; display: flex; gap: 14px; }
+ .die { width: 58px; height: 58px; border: 4px solid #1f1b2e; border-radius: 14px; background: #fff;
+     box-shadow: 0 5px 0 #1f1b2e; position: relative; display: grid; grid-template-columns: 1fr 1fr 1fr; grid-template-rows: 1fr 1fr 1fr; padding: 9px; }
+ .die i { width: 10px; height: 10px; border-radius: 50%; background: #1f1b2e; place-self: center; }
+ .die.coral { background: #ff6b81; } .die.mango { background: #ffd23e; }
+ .die.coral i, .die.mango i { background: #fff; }
+
+ .cap { position: fixed; bottom: 26px; left: 0; right: 0; text-align: center; font-size: 21px; font-weight: 900;
+     letter-spacing: .16em; color: #a89fb5; }
+ .hotel { position: absolute; top: -13px; right: -8px; width: 30px; height: 18px; border: 3px solid #1f1b2e;
+      border-radius: 4px; }
+</style></head>
+<body>
+<div class="scene"><div class="board-wrap"><div id="board" class="board">
+ <div class="center">
+  <div class="logo">Dice <em>&amp;</em></div>
+  <div class="logo logo2">Deeds</div>
+  <div class="tag">GO AROUND THE WORLD</div>
+  <div class="dice">
+   <div class="die coral"><i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i></div>
+   <div class="die"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:2/2"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div>
+   <div class="die mango"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div>
+  </div>
+ </div>
+</div></div></div>
+<div class="cap">VARIANT C2 — TOON FIELD · EXTRUDED DEPTH · FLAG COUNTRIES</div>
+<script>
+window.addEventListener("error", e => { const d = document.createElement("div"); d.style.cssText="position:fixed;top:6px;left:6px;background:#300;color:#fff;padding:8px;font-size:14px;z-index:999;max-width:700px;white-space:pre-wrap"; d.textContent = "ERR: " + e.message + "\n" + (e.error?.stack ?? "").split("\n").slice(0,4).join("\n"); document.body.appendChild(d); });
+
+const B = 940, PAD = 20, CORNER = 140, GAP = 5, DEPTH = 26;
+const sideLen = (B - PAD*2 - CORNER*2 - GAP*9) / 9; // â‰ˆ 71px
+
+const GROUPS = {
+ brown:  { c: "#c9936a", tiles: ["ðŸ‡®ðŸ‡¹ Sicily", "ðŸ‡®ðŸ‡¹ Milan"] },
+ lightblue:{ c: "#9fdcf8", tiles: ["ðŸ‡¯ðŸ‡µ Kyoto", "ðŸ‡¯ðŸ‡µ Osaka", "ðŸ‡¯ðŸ‡µ Tokyo"] },
+ pink:   { c: "#ff8fb8", tiles: ["ðŸ‡¹ðŸ‡­ Phuket", "ðŸ‡¹ðŸ‡­ Chiang Mai", "ðŸ‡¹ðŸ‡­ Bangkok"] },
+ orange:  { c: "#ffb26b", tiles: ["ðŸ‡ªðŸ‡¸ Seville", "ðŸ‡ªðŸ‡¸ Madrid", "ðŸ‡ªðŸ‡¸ Barcelona"] },
+ red:   { c: "#ff8a94", tiles: ["ðŸ‡¹ðŸ‡· Antalya", "ðŸ‡¹ðŸ‡· Izmir", "ðŸ‡¹ðŸ‡· Istanbul"] },
+ yellow:  { c: "#ffdf7e", tiles: ["ðŸ‡©ðŸ‡ª Cologne", "ðŸ‡©ðŸ‡ª Munich", "ðŸ‡©ðŸ‡ª Berlin"] },
+ green:  { c: "#7dedaf", tiles: ["ðŸ‡§ðŸ‡· Salvador", "ðŸ‡§ðŸ‡· Rio", "ðŸ‡§ðŸ‡· SÃ£o Paulo"] },
+ darkblue: { c: "#8fb7ff", tiles: ["ðŸ‡ºðŸ‡¸ Miami", "ðŸ‡ºðŸ‡¸ New York"] },
+ rr:    { c: "#c9b8ff", tiles: ["ðŸš‚ Trans-Sib", "ðŸš† Orient Exp", "ðŸšˆ Eurostar", "ðŸš„ Shinkansen"] },
+ utility: { c: "#7fe3a8", tiles: ["ðŸ’§ Water", "âš¡ Power"] }
+};
+const CARDS = [ ["ðŸŽ", "Community"], ["ðŸŽ²", "Chance"] ];
+const TAX = [ ["ðŸ’¸", "Income Tax"], ["ðŸ’Ž", "Luxury Tax"] ];
+const CORNERS = [ ["âž¡ï¸", "GO", "COLLECT 200"], ["ðŸ”’", "Jail", "JUST VISITING"], ["ðŸ…¿ï¸", "Free Parking", "TAKE 5"], ["ðŸš”", "Go To Jail", "BUSTED"] ];
+
+const PLAN = [
+ "go", "brown", "chest", "brown", "tax", "rr",
+ "lightblue", "chance", "lightblue", "lightblue", "jail",
+ "pink", "utility", "pink", "pink", "rr",
+ "orange", "chest", "orange", "orange", "parking",
+ "red", "chance", "red", "red", "rr",
+ "yellow", "yellow", "utility2", "yellow", "gotojail",
+ "green", "green", "chest", "green", "rr2",
+ "chance", "darkblue", "tax", "darkblue"
+];
+const counters = { brown:0, lightblue:0, pink:0, orange:0, red:0, yellow:0, green:0, darkblue:0, rr:0, rr2:0, utility:0, utility2:0, chest:0, chance:0, tax:0 };
+const HOTELS = { 24: "Atlantic Ave" };
+
+function coords(idx) {
+ if (idx === 0) return { x: B - PAD - CORNER, y: B - PAD - CORNER, side: "corner" };
+ if (idx === 10) return { x: PAD, y: B - PAD - CORNER, side: "corner" };
+ if (idx === 20) return { x: PAD, y: PAD, side: "corner" };
+ if (idx === 30) return { x: B - PAD - CORNER, y: PAD, side: "corner" };
+ if (idx < 10) return { x: B - PAD - CORNER - (idx - 0) * (sideLen + GAP) , y: B - PAD - CORNER, side: "bottom" };
+ if (idx < 20) return { x: PAD, y: B - PAD - CORNER - (idx - 10) * (sideLen + GAP), side: "left" };
+ if (idx < 30) return { x: PAD + (idx - 20) * (sideLen + GAP) + GAP, y: PAD, side: "top" };
+ return { x: B - PAD - CORNER, y: PAD + (idx - 30) * (sideLen + GAP) + GAP, side: "right" };
+}
+
+// ── flat per-tile display data (index order = classic board) ──
+const TILES = [
+ { kind:"corner", f:"➡️", n:"GO", s:"COLLECT 200" },
+ { kind:"city", g:"brown", f:"🇮🇹", n:"Sicily", p:60 },
+ { kind:"card", c:"#c9b8ff", f:"🎁", n:"Community", s:"CHEST" },
+ { kind:"city", g:"brown", f:"🇮🇹", n:"Milan", p:60 },
+ { kind:"tax", f:"💸", n:"Income Tax", s:"PAY 200" },
+ { kind:"city", g:"rr", f:"🚂", n:"Trans-Sib", p:200 },
+ { kind:"city", g:"lightblue", f:"🇯🇵", n:"Kyoto", p:100 },
+ { kind:"card", c:"#ffd23e", f:"🎲", n:"Chance", s:"CARDS" },
+ { kind:"city", g:"lightblue", f:"🇯🇵", n:"Osaka", p:100 },
+ { kind:"city", g:"lightblue", f:"🇯🇵", n:"Tokyo", p:120 },
+ { kind:"corner", f:"🔒", n:"Jail", s:"JUST VISITING" },
+ { kind:"city", g:"pink", f:"🇹🇭", n:"Phuket", p:140 },
+ { kind:"city", g:"utility", f:"💧", n:"Water", p:150 },
+ { kind:"city", g:"pink", f:"🇹🇭", n:"Chiang Mai", p:140 },
+ { kind:"city", g:"pink", f:"🇹🇭", n:"Bangkok", p:160 },
+ { kind:"city", g:"rr", f:"🚆", n:"Orient Exp", p:200 },
+ { kind:"city", g:"orange", f:"🇪🇸", n:"Seville", p:180 },
+ { kind:"card", c:"#c9b8ff", f:"🎁", n:"Community", s:"CHEST" },
+ { kind:"city", g:"orange", f:"🇪🇸", n:"Madrid", p:180 },
+ { kind:"city", g:"orange", f:"🇪🇸", n:"Barcelona", p:200 },
+ { kind:"corner", f:"🅿️", n:"Free Parking", s:"TAKE 5" },
+ { kind:"city", g:"red", f:"🇹🇷", n:"Antalya", p:220 },
+ { kind:"card", c:"#ffd23e", f:"🎲", n:"Chance", s:"CARDS" },
+ { kind:"city", g:"red", f:"🇹🇷", n:"Izmir", p:220 },
+ { kind:"city", g:"red", f:"🇹🇷", n:"Istanbul", p:240 },
+ { kind:"city", g:"rr", f:"🚈", n:"Eurostar", p:200 },
+ { kind:"city", g:"yellow", f:"🇩🇪", n:"Cologne", p:260 },
+ { kind:"city", g:"yellow", f:"🇩🇪", n:"Munich", p:260 },
+ { kind:"city", g:"utility", f:"⚡", n:"Power Grid", p:150 },
+ { kind:"city", g:"yellow", f:"🇩🇪", n:"Berlin", p:280 },
+ { kind:"corner", f:"🚔", n:"Go To Jail", s:"DO NOT PASS" },
+ { kind:"city", g:"green", f:"🇧🇷", n:"Salvador", p:300 },
+ { kind:"city", g:"green", f:"🇧🇷", n:"Rio", p:300 },
+ { kind:"card", c:"#c9b8ff", f:"🎁", n:"Community", s:"CHEST" },
+ { kind:"city", g:"green", f:"🇧🇷", n:"São Paulo", p:320 },
+ { kind:"city", g:"rr", f:"🚄", n:"Shinkansen", p:200 },
+ { kind:"card", c:"#ffd23e", f:"🎲", n:"Chance", s:"CARDS" },
+ { kind:"city", g:"darkblue", f:"🇺🇸", n:"Miami", p:350 },
+ { kind:"tax", f:"💎", n:"Luxury Tax", s:"PAY 100" },
+ { kind:"city", g:"darkblue", f:"🇺🇸", n:"New York", p:400, hotel:true }
+];
+const GC = { brown:"#c9936a", lightblue:"#9fdcf8", pink:"#ff8fb8", orange:"#ffb26b", red:"#ff8a94", yellow:"#ffdf7e", green:"#7dedaf", darkblue:"#8fb7ff", rr:"#c9b8ff", utility:"#7fe3a8" };
+const HOUSES = { 6: 2, 16: 2, 21: 3, 27: 3 };
+const board = document.getElementById("board");
+
+for (let idx = 0; idx < 40; idx++) {
+ const T = TILES[idx];
+ const pos = coords(idx);
+ const isCorner = pos.side === "corner";
+ const verticalSide = pos.side === "left" || pos.side === "right";
+ const w = isCorner ? CORNER : (verticalSide ? CORNER : sideLen);
+ const h = isCorner ? CORNER : (verticalSide ? sideLen : CORNER);
+
+ const cell = document.createElement("div");
+ cell.className = "cell";
+ cell.style.width = w + "px"; cell.style.height = h + "px";
+ cell.style.left = pos.x + "px"; cell.style.top = pos.y + "px";
+ if (!isCorner) cell.style.borderRadius = "11px";
+
+ const groupColor = GC[T.g] ?? T.c ?? "#ffd7ad";
+ let html = "";
+
+ if (isCorner) {
+  html = `<div class="nm" style="inset:8px 6px">
+   <div style="font-size:34px;line-height:1">${T.f}</div>
+   <b style="margin-top:5px">${T.n}</b><s>${T.s}</s></div>`;
+ } else {
+  // color strip at the CENTER-facing edge
+  const stripPos = pos.side === "bottom" ? "top:7px" : pos.side === "top" ? "bottom:7px;top:auto"
+   : pos.side === "left" ? "right:6px;left:auto;width:20px;top:6px;bottom:6px;height:auto"
+   : "left:6px;right:auto;width:20px;top:6px;bottom:6px;height:auto";
+  html = `<div class="strip2" style="--g:${groupColor};${stripPos}"></div>`;
+
+  // card body: flag + name (+ price), horizontal text everywhere
+  const bodyInset = pos.side === "bottom" ? "top:44px;bottom:7px;left:7px;right:7px"
+   : pos.side === "top" ? "top:7px;bottom:44px;left:7px;right:7px"
+   : pos.side === "left" ? "top:7px;bottom:7px;left:8px;right:32px"
+   : "top:7px;bottom:7px;left:32px;right:8px";
+  const [flag, ...nameWords] = (T.f + " " + T.n).split(" ");
+  const nameOnly = T.n;
+  html += `<div class="body" style="${bodyInset}">
+   <div style="font-size:24px;line-height:1.05">${T.f}</div>
+   <div style="font-size:13.5px;font-weight:900;line-height:1.03">${nameOnly}</div>
+   <div style="font-size:10.5px;font-weight:800;color:#a89fb5;margin-top:auto">${T.p ? "$" + T.p : ""}</div></div>`;
+
+  // houses / hotel decorations
+  if (idx === 39) {
+   html += `<div style="position:absolute;top:-13px;right:-6px;width:30px;height:18px;background:#ff6b81;border:3px solid #1f1b2e;border-radius:5px;box-shadow:0 2.5px 0 #1f1b2e"></div>`;
+  }
+ }
+ if (!isCorner && HOUSES[idx]) {
+  html += `<div style="position:absolute;top:-11px;left:8px;display:flex;gap:3px">`;
+  for (let i = 0; i < HOUSES[idx]; i++)
+   html += `<span style="width:14px;height:11px;background:#3fbf7f;border:2.5px solid #1f1b2e;border-radius:3px;box-shadow:0 2px 0 #1f1b2e"></span>`;
+  html += `</div>`;
+ }
+ cell.innerHTML = html;
+ board.appendChild(cell);
+}
+
+// player pawns
+(function tokens() {
+  const spots = [[1, -20], [1, 22], [3, -20], [3, 22], [8, -20], [8, 22]];
+  const colors = ["#e5484d", "#ff6b81", "#ffd23e", "#3fbf7f", "#0072bb", "#c9b8ff"];
+  const names = ["Sasha", "Juno", "Marek", "Lina", "Andrei", "Kato"];
+  spots.forEach(([idx, off], i) => {
+    const pos = coords(idx);
+    const t = document.createElement("div");
+    t.style.cssText = `position:absolute;left:${pos.x + sideLen / 2 + off - 17}px;top:${pos.y - 48}px;width:34px;height:44px;z-index:5;`;
+    t.innerHTML = `
+      <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:24px;height:9px;border-radius:50%;background:${colors[i]};border:3px solid #1f1b2e"></div>
+      <div style="position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:13px;height:15px;border-radius:50% 50% 44% 44%;background:${colors[i]};border:3px solid #1f1b2e"></div>
+      <div style="position:absolute;top:22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:900;color:#1f1b2e;background:#fff;border:2.5px solid #1f1b2e;border-radius:8px;padding:1px 6px;box-shadow:0 2px 0 #1f1b2e;white-space:nowrap">${names[i]}</div>`;
+    board.appendChild(t);
+  });
+})();
+
+(function debug() {
+  const d = document.createElement("div");
+  d.style.cssText = "position:fixed;top:6px;right:8px;background:#033;color:#fff;padding:6px 10px;font-size:13px;z-index:999";
+  d.textContent = "cells:" + document.querySelectorAll(".cell").length + " board:" + (board ? "ok" : "NULL") + " TILES:" + TILES.length;
+  document.body.appendChild(d);
+})();
+</script>
+</body>
+</html>
+

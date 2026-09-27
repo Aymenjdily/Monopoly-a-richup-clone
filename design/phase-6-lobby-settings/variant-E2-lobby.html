@@ -1,0 +1,277 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<title>Variant E2 — Lobby rules sheet</title>
+<style>
+ * { margin: 0; box-sizing: border-box; }
+ :root { --ink:#1f1b2e; --coral:#ff6b81; --mango:#ffc53d; --mint:#7fe3a8; --lilac:#c9b8ff; --cream:#fffaf0; --muted:#a89fb5; }
+ html, body { width: 1600px; height: 1000px; overflow: hidden; }
+ body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); position: relative;
+   background:
+     radial-gradient(900px 520px at 50% 52%, rgba(255,255,255,.85), transparent 70%),
+     radial-gradient(1100px 800px at 84% 8%, rgba(255,107,129,.18), transparent 62%),
+     radial-gradient(1000px 760px at 12% 100%, rgba(201,184,255,.28), transparent 60%),
+     radial-gradient(900px 700px at 96% 96%, rgba(127,227,168,.20), transparent 58%),
+     radial-gradient(1200px 900px at 30% 20%, rgba(255,197,61,.22), transparent 66%),
+     linear-gradient(180deg, #fff7ea 0%, #ffefd8 100%); }
+ canvas { position: absolute; inset: 0; z-index: 1; }
+ .grain { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: .4; mix-blend-mode: overlay;
+   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.32'/></svg>"); }
+ .layer { position: absolute; inset: 0; z-index: 3; }
+
+ /* header */
+ .head { position: absolute; left: 56px; right: 56px; top: 44px; display: flex; align-items: center; gap: 18px; }
+ .back { width: 50px; height: 50px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; display: grid; place-items: center;
+   font-size: 20px; font-weight: 900; box-shadow: 0 4px 0 var(--ink); }
+ .title h1 { font: 900 38px/1 "Segoe UI Black", "Segoe UI"; letter-spacing: -.02em; }
+ .title p { margin-top: 6px; font-size: 14px; font-weight: 800; color: var(--muted); }
+ .title p b { color: var(--ink); }
+ .spacer { flex: 1; }
+ .codebox { display: flex; align-items: center; gap: 14px; background: #fff; border: 3.5px solid var(--ink); border-radius: 22px;
+   padding: 10px 12px 10px 20px; box-shadow: 0 6px 0 var(--ink); }
+ .codebox label { font-size: 11px; font-weight: 900; letter-spacing: .14em; color: var(--muted); line-height: 1.3; }
+ .code { display: flex; gap: 7px; }
+ .code div { width: 48px; height: 60px; border: 3px solid var(--ink); border-radius: 11px; position: relative; overflow: hidden; background: var(--cream);
+   display: grid; place-items: center; padding-top: 9px; font: 900 27px "Segoe UI Black", "Segoe UI"; box-shadow: 0 3px 0 var(--ink); }
+ .code div::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 11px; background: var(--g); border-bottom: 2.5px solid var(--ink); }
+ .copy { height: 60px; padding: 0 18px; border: 3px solid var(--ink); border-radius: 14px; background: var(--mango); font-size: 15px; font-weight: 900;
+   display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 var(--ink); }
+
+ /* seat labels (positioned from the 3D projection) */
+ .seat { position: absolute; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 7px; }
+ .plate { display: flex; align-items: center; gap: 8px; background: #fff; border: 3px solid var(--ink); border-radius: 999px; padding: 7px 15px;
+   font: 900 18px "Segoe UI Black", "Segoe UI"; box-shadow: 0 4px 0 var(--ink); white-space: nowrap; }
+ .plate .dot { width: 12px; height: 12px; border-radius: 50%; border: 2.5px solid var(--ink); background: var(--c); }
+ .plate .you { font-family: "Segoe UI"; font-weight: 800; color: #b6adc4; font-size: 15px; }
+ .badges { display: flex; gap: 6px; }
+ .badge { font-size: 10.5px; font-weight: 900; letter-spacing: .1em; border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 9px; background: var(--b); white-space: nowrap; }
+ .badge.x { background: var(--coral); color: #fff; }
+ .empty .add { font-size: 15px; font-weight: 900; color: var(--ink); background: var(--cream); border: 3px dashed var(--ink); border-radius: 999px; padding: 7px 16px; white-space: nowrap; }
+ .empty .add b { color: var(--coral); }
+ .empty small { font-size: 12px; font-weight: 800; color: var(--muted); }
+
+ /* dock */
+ .dock { position: absolute; left: 50%; bottom: 40px; transform: translateX(-50%); width: 1080px; display: flex; align-items: center; gap: 22px;
+   background: #fff; border: 3.5px solid var(--ink); border-radius: 26px; padding: 16px 16px 16px 26px; box-shadow: 0 8px 0 var(--ink), 24px 28px 0 rgba(31,27,46,.08); }
+ .meter { display: flex; gap: 6px; }
+ .meter i { width: 26px; height: 12px; border-radius: 6px; border: 2.5px solid var(--ink); background: var(--c, #f1eadc); }
+ .status b { display: block; font: 900 19px "Segoe UI Black", "Segoe UI"; }
+ .status span { font-size: 13px; font-weight: 800; color: var(--muted); }
+ .start { margin-left: auto; display: flex; align-items: center; gap: 14px; background: var(--ink); color: #fff; border: 3.5px solid var(--ink);
+   border-radius: 18px; padding: 18px 26px; font: 900 22px "Segoe UI Black", "Segoe UI"; letter-spacing: .02em; box-shadow: 0 6px 0 rgba(31,27,46,.3); }
+ .start i { font-style: normal; font-size: 13px; letter-spacing: .1em; background: var(--mint); color: var(--ink); border-radius: 999px; padding: 5px 11px; }
+ .start span { opacity: .85; }
+
+ .sec { font-size: 11px; font-weight: 900; letter-spacing: .14em; color: var(--muted); margin: 0 0 9px; display: flex; align-items: center; gap: 8px; }
+ .sec::after { content: ""; flex: 1; height: 2.5px; border-radius: 2px; background: #eee5d6; }
+ .seg { display: flex; gap: 6px; }
+ .seg b { flex: 1; text-align: center; font-size: 15px; font-weight: 900; padding: 9px 0; border: 2.5px solid var(--ink); border-radius: 12px; background: #fff; box-shadow: 0 3px 0 var(--ink); }
+ .seg b.on { background: var(--mango); }
+ .seg b.def::after { content: " ★"; font-size: 10px; }
+ .row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 2px dashed #efe6d6; }
+ .row:last-child { border-bottom: 0; }
+ .row .ic { width: 34px; height: 34px; flex: none; border: 2.5px solid var(--ink); border-radius: 10px; display: grid; place-items: center; font-size: 17px; background: var(--c, #fff); }
+ .row .tx { flex: 1; min-width: 0; }
+ .row .tx b { display: block; font-size: 15px; font-weight: 900; }
+ .row .tx span { font-size: 12px; font-weight: 700; color: #8a809b; }
+ .tog { width: 50px; height: 28px; flex: none; border: 2.5px solid var(--ink); border-radius: 999px; background: #efe6d6; position: relative; }
+ .tog::after { content: ""; position: absolute; top: 2px; left: 2px; width: 19px; height: 19px; border-radius: 50%; background: #fff; border: 2.5px solid var(--ink); }
+ .tog.on { background: var(--mint); }
+ .tog.on::after { left: 24px; }
+ .step { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: 900; }
+ .step i { font-style: normal; width: 30px; height: 30px; border: 2.5px solid var(--ink); border-radius: 9px; display: grid; place-items: center; background: #fff; box-shadow: 0 2px 0 var(--ink); }
+ .lock { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 900; letter-spacing: .1em; background: var(--lilac); border: 2.5px solid var(--ink); border-radius: 999px; padding: 3px 10px; }
+ .rules-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 900; background: #fff; border: 2.5px solid var(--ink); border-radius: 999px; padding: 4px 11px; box-shadow: 0 2px 0 var(--ink); white-space: nowrap; }
+
+ .dim { position: absolute; inset: 0; background: rgba(31,27,46,.38); z-index: 5; }
+ .sheet { position: absolute; z-index: 6; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 820px; background: #fff; border: 3.5px solid var(--ink);
+   border-radius: 28px; box-shadow: 0 9px 0 var(--ink), 30px 34px 0 rgba(31,27,46,.12); padding: 26px 30px 24px; }
+ .sheet h2 { font: 900 28px "Segoe UI Black", "Segoe UI"; display: flex; align-items: center; gap: 12px; }
+ .sheet h2 small { font: 800 14px "Segoe UI"; color: var(--muted); }
+ .sheet .x { margin-left: auto; width: 42px; height: 42px; border: 3px solid var(--ink); border-radius: 12px; display: grid; place-items: center; font-size: 18px; box-shadow: 0 3px 0 var(--ink); }
+ .cols { display: grid; grid-template-columns: 1fr 1.25fr; gap: 30px; margin-top: 18px; }
+ .foot { display: flex; align-items: center; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 2.5px solid #eee5d6; }
+ .foot .reset { font-size: 14px; font-weight: 900; color: var(--muted); }
+ .foot .save { margin-left: auto; background: var(--ink); color: #fff; border-radius: 16px; padding: 13px 24px; font: 900 17px "Segoe UI Black", "Segoe UI"; box-shadow: 0 5px 0 rgba(31,27,46,.3); }
+ .rulesbtn { height: 60px; padding: 0 18px; border: 3px solid var(--ink); border-radius: 14px; background: #fff; font-size: 15px; font-weight: 900; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 0 var(--ink); }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"
+} }
+</script>
+<script src="../shared/dd-diorama.js"></script>
+</head>
+<body>
+<div class="grain"></div>
+<div class="layer" id="layer">
+  <div class="head">
+    <div class="back">←</div>
+    <div class="title"><h1>Waiting room</h1><p>Hosted by <b>Sasha</b> · the lobby updates live</p></div>
+    <div class="spacer"></div>
+    <div class="codebox">
+      <label>ROOM<br>CODE</label>
+      <div class="code">
+        <div style="--g:#ff6f6f">X</div><div style="--g:#ffab5e">4</div><div style="--g:#ffd23e">K</div>
+        <div style="--g:#5fd99a">9</div><div style="--g:#8fd3f5">R</div><div style="--g:#c9b8ff">D</div>
+      </div>
+      <div class="copy">⧉ Copy invite</div>
+    </div>
+    <div class="rulesbtn">⚙️ Room rules</div>
+  </div>
+
+
+  <div class="dim"></div>
+  <div class="sheet">
+    <h2>⚙️ Room rules <small>everyone in the lobby sees changes live</small><span class="x">✕</span></h2>
+    <div class="cols">
+      <div>
+  <div class="sec">STARTING CASH</div>
+  <div class="seg"><b>$1,000</b><b class="on def">$1,500</b><b>$2,000</b><b>$2,500</b></div>
+  <div class="sec" style="margin-top:16px">PASSING GO PAYS</div>
+  <div class="seg"><b>$100</b><b class="on def">$200</b><b>$300</b></div>
+        <div class="sec" style="margin-top:16px">SEATS</div>
+        
+  <div class="row"><div class="ic" style="--c:#ffdbe1">👥</div><div class="tx"><b>Max players</b><span>Seats open in the lobby</span></div><div class="step"><i>−</i>6<i>+</i></div></div>
+      </div>
+      <div><div class="sec">RULES</div>
+  <div class="row"><div class="ic" style="--c:#dcf6e8">🎯</div><div class="tx"><b>Exact GO bonus</b><span>Land exactly on GO: collect double</span></div><div class="tog on"></div></div>
+  <div class="row"><div class="ic" style="--c:#ece6ff">🅿️</div><div class="tx"><b>Free Parking jackpot</b><span>Taxes & fees pile up in the middle</span></div><div class="tog"></div></div>
+  <div class="row"><div class="ic" style="--c:#ffe9cf">🔒</div><div class="tx"><b>Rent while in jail</b><span>Jailed owners still collect rent</span></div><div class="tog on"></div></div>
+  <div class="row"><div class="ic" style="--c:#e3f8ec">🏠</div><div class="tx"><b>Even building</b><span>Build evenly across a country set</span></div><div class="tog on"></div></div>
+  <div class="row"><div class="ic" style="--c:#fff1c4">🎲</div><div class="tx"><b>Random turn order</b><span>Shuffle who goes first at start</span></div><div class="tog"></div></div></div>
+    </div>
+    <div class="foot"><span class="reset">↺ Reset to standard</span><span class="save">Save rules</span></div>
+  </div>
+  <div class="dock">
+    <div class="meter"><i style="--c:#e5484d"></i><i style="--c:#f5a623"></i><i style="--c:#f7cf3c"></i><i></i><i></i><i></i></div>
+    <div class="status"><b>3 of 6 seats filled</b><span>Friends open the site and enter the code — no account needed.</span></div>
+    <div class="start">START THE GAME <i>READY</i><span>→</span></div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const INK = "#1f1b2e";
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(1600, 1000);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.6;
+scene.add(new THREE.HemisphereLight("#fff6e6", "#c9b8ff", 0.9));
+const key = new THREE.DirectionalLight("#fff1dc", 2.5);
+key.position.set(-6, 12, 9); key.castShadow = true; key.shadow.mapSize.set(4096, 4096);
+Object.assign(key.shadow.camera, { left: -10, right: 10, top: 8, bottom: -8, near: 1, far: 40 });
+key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; scene.add(key);
+const rim = new THREE.DirectionalLight("#ffd6de", 0.7); rim.position.set(7, 5, -8); scene.add(rim);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ color: "#3a2a4a", opacity: 0.2 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.42; ground.receiveShadow = true; scene.add(ground);
+
+// borrow the shared pieces (board is built into a throwaway scene)
+const dd = DD.build({ THREE, RoundedBoxGeometry, scene: new THREE.Scene(), renderer, opts: { props: false } });
+
+const SEATS = [
+  { name: "Sasha", color: "#e5484d", you: true, host: true },
+  { name: "Juno",  color: "#f5a623" },
+  { name: "Kato",  color: "#f7cf3c", bot: true },
+  null, null, null,
+];
+const SPACING = 2.2;
+const podiumGeo = new RoundedBoxGeometry(1.6, 0.46, 1.6, 4, 0.12);
+const layer = document.getElementById("layer");
+// stage slab: same build as the board (ink base, coral pinstripe, cream top)
+{
+  const base = dd.mesh(new RoundedBoxGeometry(13.9, 0.34, 3.4, 6, 0.16), dd.std("#2a2440", { roughness: 0.5 })); base.position.y = -0.25; scene.add(base);
+  const stripe = dd.mesh(new RoundedBoxGeometry(13.96, 0.07, 3.46, 6, 0.03), dd.std("#ff6b81", { roughness: 0.4 })); stripe.position.y = -0.19; scene.add(stripe);
+  const top = dd.mesh(new RoundedBoxGeometry(13.7, 0.14, 3.2, 6, 0.06), dd.std("#fff6e4", { roughness: 0.8 })); top.position.y = -0.07; scene.add(top);
+}
+
+function podiumTop(color, n, empty) {
+  return dd.canvasTex(512, 512, (ctx, w, h) => {
+    if (empty) {
+      dd.rr(ctx, 10, 10, w - 20, h - 20, 70, "rgba(255,250,240,.9)", null);
+      ctx.setLineDash([34, 22]); dd.rr(ctx, 26, 26, w - 52, h - 52, 58, null, "rgba(31,27,46,.45)", 10); ctx.setLineDash([]);
+      ctx.fillStyle = "rgba(31,27,46,.28)"; ctx.fillRect(w / 2 - 12, h / 2 - 70, 24, 140); ctx.fillRect(w / 2 - 70, h / 2 - 12, 140, 24);
+      return;
+    }
+    dd.rr(ctx, 10, 10, w - 20, h - 20, 70, "#fffaf0", INK, 14);
+    dd.rr(ctx, 40, h - 128, w - 80, 86, 30, color, INK, 12);       // color band on the front edge
+    ctx.font = '900 70px "Segoe UI Black"'; ctx.fillStyle = INK; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText(`P${n}`, w / 2, h - 84);
+    ctx.fillStyle = "rgba(31,27,46,.07)";
+    ctx.beginPath(); ctx.ellipse(w / 2, 200, 150, 110, 0, 0, 7); ctx.fill();
+  });
+}
+
+const cam = new THREE.PerspectiveCamera(30, 1600 / 1000, 0.1, 100);
+cam.position.set(0, 5.2, 18.4); cam.lookAt(0, 0.75, 0);
+cam.updateMatrixWorld(); cam.updateProjectionMatrix();
+const toScreen = (v) => { const p = v.clone().project(cam); return { x: (p.x + 1) / 2 * 1600, y: (1 - p.y) / 2 * 1000 }; };
+
+SEATS.forEach((s, k) => {
+  const x = (k - 2.5) * SPACING, z = 0;
+  const empty = !s;
+  const pod = new THREE.Group();
+  const bodyMat = empty ? new THREE.MeshStandardMaterial({ color: "#efe6d4", roughness: 0.8, transparent: true, opacity: 0.55 })
+                        : dd.std("#2a2440", { roughness: 0.45 });
+  const body = dd.mesh(podiumGeo, bodyMat, { cast: !empty }); body.position.y = 0.23; pod.add(body);
+  if (!empty) {
+    const ring = dd.mesh(new RoundedBoxGeometry(1.66, 0.08, 1.66, 4, 0.04), dd.std(s.color, { roughness: 0.35 })); ring.position.y = 0.2; pod.add(ring);
+  }
+  const top = dd.mesh(new THREE.PlaneGeometry(1.46, 1.46),
+    new THREE.MeshStandardMaterial({ map: podiumTop(s?.color, k + 1, empty), transparent: true, roughness: 0.8 }), { cast: false });
+  top.rotation.x = -Math.PI / 2; top.position.y = 0.462; pod.add(top);
+  pod.position.set(x, 0, z); pod.rotation.y = 0;
+  scene.add(pod);
+
+  if (s) {
+    const p = dd.pawn(s.color);
+    p.scale.setScalar(2.1); p.position.set(x, 0.46, z - 0.08); p.rotation.y = 0.4;
+    scene.add(p);
+    if (s.bot) {  // little antenna for bots
+      const stem = dd.mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.32, 10), dd.std(INK));
+      stem.position.set(x, 0.46 + 1.45, z - 0.08); scene.add(stem);
+      const bulb = dd.mesh(new THREE.SphereGeometry(0.075, 20, 14),
+        new THREE.MeshStandardMaterial({ color: "#7fe3a8", emissive: "#3fdc8a", emissiveIntensity: 0.7 }));
+      bulb.position.set(x, 0.46 + 1.62, z - 0.08); scene.add(bulb);
+    }
+    if (s.you) {
+      const glowTex = dd.canvasTex(256, 256, (ctx, w, h) => {
+        const g = ctx.createRadialGradient(w / 2, h / 2, 20, w / 2, h / 2, 128);
+        g.addColorStop(0, "rgba(255,197,61,.95)"); g.addColorStop(1, "rgba(255,197,61,0)");
+        ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      });
+      const glow = new THREE.Mesh(new THREE.PlaneGeometry(3.4, 3.4), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false, toneMapped: false }));
+      glow.rotation.x = -Math.PI / 2; glow.position.set(x, 0.005, z); scene.add(glow);
+    }
+  } else {
+    const ghost = dd.pawn("#ffffff");
+    ghost.traverse((o) => { if (o.isMesh) { o.material = new THREE.MeshStandardMaterial({ color: "#d9cfe8", transparent: true, opacity: 0.22, depthWrite: false }); o.castShadow = false; } });
+    ghost.scale.setScalar(2.1); ghost.position.set(x, 0.46, z - 0.08); scene.add(ghost);
+  }
+
+  // DOM label under the podium
+  const at = toScreen(new THREE.Vector3(x, -0.42, 1.75));
+  const el = document.createElement("div");
+  el.className = "seat" + (empty ? " empty" : "");
+  el.style.left = at.x + "px"; el.style.top = (at.y + 20) + "px";
+  el.innerHTML = empty
+    ? `<div class="add"><b>＋</b> Add bot</div><small>or invite a friend</small>`
+    : `<div class="plate" style="--c:${s.color}"><span class="dot"></span>${s.name}${s.you ? ' <span class="you">(you)</span>' : ""}</div>
+       <div class="badges">${s.host ? '<span class="badge" style="--b:#ffc53d">HOST ★</span>' : ""}${s.bot ? '<span class="badge" style="--b:#c9b8ff">BOT</span><span class="badge x">✕</span>' : ""}</div>`;
+  layer.appendChild(el);
+});
+
+
+renderer.render(scene, cam);
+</script>
+</body>
+</html>

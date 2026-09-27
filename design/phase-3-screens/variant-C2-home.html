@@ -1,0 +1,100 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1600px; height: 1000px; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif;
+         color: #241a33; position: relative;
+         background-image:
+           radial-gradient(circle at 8% 12%, #ffd8a8 0 120px, transparent 121px),
+           radial-gradient(circle at 94% 16%, #b8f2c9 0 140px, transparent 141px),
+           radial-gradient(circle at 10% 88%, #ffc2d1 0 150px, transparent 151px),
+           radial-gradient(circle at 92% 86%, #c8f0ff 0 130px, transparent 131px),
+           radial-gradient(rgba(36,26,51,.06) 2.4px, transparent 2.4px);
+         background-size: auto, auto, auto, auto, 34px 34px;
+         background-color: #fff4e0;
+         display: flex; align-items: center; justify-content: center; }
+  .wrap { width: 1180px; text-align: center; position: relative; z-index: 2; }
+  .chip { position: absolute; top: -34px; left: -210px; background: #241a33; color: #ffd23e;
+          border: 3px solid #241a33; border-radius: 999px; padding: 10px 22px; font-weight: 900;
+          font-size: 15px; transform: rotate(-7deg); box-shadow: 4px 4px 0 rgba(36,26,51,.25); letter-spacing: .06em; }
+  .dice-row { display: flex; gap: 26px; justify-content: center; margin-bottom: 6px; }
+  .die { width: 84px; height: 84px; border-radius: 20px; border: 4px solid #241a33;
+         box-shadow: 0 6px 0 #241a33, 10px 12px 0 rgba(36,26,51,.16); position: relative; background: #fff; }
+  .die i { position: absolute; width: 15px; height: 15px; border-radius: 50%; background: #241a33; }
+  .die.a { background:#ff5c8a; transform: rotate(-9deg); }
+  .die.a i, .die.c i { background:#fff; }
+  .die.c { background:#7c4dff; transform: rotate(8deg); }
+  .die.b { top: -12px; }
+  .pip-tl { top: 12px; left: 12px; } .pip-br { bottom: 12px; right: 12px; }
+  .pip-c { top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .pip-bl { bottom: 12px; left: 12px; } .pip-tr { top: 12px; right: 12px; } .pip-mr { top: 50%; right: 12px; transform: translateY(-50%); }
+  h1 { font-size: 120px; font-weight: 900; letter-spacing: -.045em; line-height: .95;
+       color: #241a33; text-shadow: 4px 4px 0 rgba(255,92,138,.35); }
+  h1 em { font-style: normal; color: #ff5c8a; }
+  .swash { display:block; margin: 6px auto 0; }
+  .sub { font-size: 22px; font-weight: 700; color: #6b5f7c; margin: 18px 0 52px; }
+  .sub b { color: #241a33; }
+  .cards { display: flex; gap: 30px; justify-content: center; align-items: stretch; }
+  .card { width: 460px; background: #fff; border: 4px solid #241a33; border-radius: 24px;
+          padding: 34px 34px 0; box-shadow: 0 8px 0 #241a33, 18px 20px 0 rgba(36,26,51,.14);
+          text-align: left; position: relative; }
+  .badge { position: absolute; top: -18px; right: 26px; background: #ffd23e; border: 3px solid #241a33;
+           border-radius: 10px; padding: 6px 14px; font-weight: 900; font-size: 13px;
+           box-shadow: 3px 3px 0 #241a33; transform: rotate(3deg); }
+  .card h2 { font-size: 30px; font-weight: 900; margin-bottom: 6px; letter-spacing: -.02em; }
+  .card > p { color: #6b5f7c; font-size: 16px; font-weight: 600; margin-bottom: 22px; }
+  label { display:block; font-size: 12px; font-weight: 900; letter-spacing: .12em; text-transform: uppercase; color:#8a7d96; margin-bottom: 6px; }
+  input { width: 100%; background: #fff8ef; border: 3px solid #241a33; border-radius: 14px;
+          padding: 14px 16px; font-size: 20px; font-weight: 800; outline: none;
+          box-shadow: inset 1px 2px 0 rgba(36,26,51,.08); }
+  input.code { text-align: center; letter-spacing: .55em; text-transform: uppercase; }
+  button { width: 100%; margin: 16px 0 26px; border: 4px solid #241a33; border-radius: 16px;
+           padding: 17px; font-size: 20px; font-weight: 900; cursor: pointer; color: #fff;
+           background: #ff5c8a; box-shadow: 0 6px 0 #241a33, 10px 10px 0 rgba(36,26,51,.14);
+           letter-spacing: .02em; }
+  button.alt { background: #7c4dff; }
+  button span { float: right; }
+  .strip { margin: 0 -34px; border-top: 4px solid #241a33; border-radius: 0 0 20px 20px;
+           display: flex; height: 46px; overflow: hidden; }
+  .strip i { flex: 1; border-right: 4px solid #241a33; }
+  .strip i:last-child { border-right: none; }
+  .dark i:nth-child(1){background:#955436} .dark i:nth-child(2){background:#aae0fa} .dark i:nth-child(3){background:#d93a96}
+  .dark i:nth-child(4){background:#f7941d} .dark i:nth-child(5){background:#ed1b24} .dark i:nth-child(6){background:#fef200}
+  .foot { margin-top: 40px; font-size: 14px; font-weight: 800; color: #8a7d96; letter-spacing: .04em; }
+</style></head>
+<body><div class="wrap">
+  <div class="chip">FREE · NO ACCOUNT</div>
+  <div class="dice-row">
+    <div class="die a"><i class="pip-tl"></i><i class="pip-c"></i><i class="pip-br"></i></div>
+    <div class="die b"><i class="pip-tl"></i><i class="pip-tr"></i><i class="pip-c"></i><i class="pip-bl"></i><i class="pip-br"></i></div>
+    <div class="die c"><i class="pip-tl"></i><i class="pip-tr"></i><i class="pip-bl"></i><i class="pip-br"></i></div>
+  </div>
+  <h1>Dice <em>&amp;</em> Deeds</h1>
+  <svg class="swash" width="420" height="18" viewBox="0 0 420 18" fill="none">
+    <path d="M4 12 C 90 2, 210 2, 416 10" stroke="#ffd23e" stroke-width="9" stroke-linecap="round"/>
+  </svg>
+  <div class="sub">Buy it. Build it. <b>Bankrupt them.</b> A 3D board, live opponents, zero ads.</div>
+  <div class="cards">
+    <div class="card">
+      <div class="badge">HOST</div>
+      <h2>Start a table</h2>
+      <p>Get a room code and share it — everyone joins in seconds.</p>
+      <label>Nickname</label>
+      <input placeholder="Lucky Luke">
+      <button>Create room <span>→</span></button>
+      <div class="strip dark"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+    <div class="card">
+      <div class="badge" style="background:#7ce0a0">JOIN</div>
+      <h2>Got a code?</h2>
+      <p>Someone already rolled? Type it and take a seat.</p>
+      <label>Room code</label>
+      <input class="code" placeholder="X4K9RD" maxlength="6" style="font-size:26px">
+      <button class="alt">Join room <span>→</span></button>
+      <div class="strip dark"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    </div>
+  </div>
+  <div class="foot">2–6 PLAYERS · SERVER-AUTHORITATIVE RULES · RUNS IN ANY BROWSER</div>
+</div></body>
+</html>

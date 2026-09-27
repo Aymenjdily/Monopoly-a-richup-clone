@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  /* Variant C — "Toon field": C3-design sibling. Cream world, ink outlines, chunky rounded tiles, casual tilt. */
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1600px; height: 1000px; overflow: hidden; font-family: "Segoe UI", system-ui, sans-serif;
+         color: #1f1b2e;
+         background:
+           radial-gradient(1100px 800px at 84% 8%, rgba(255,107,129,.14), transparent 62%),
+           radial-gradient(1000px 760px at 12% 100%, rgba(201,184,255,.18), transparent 60%),
+           radial-gradient(900px 700px at 96% 96%, rgba(127,227,168,.14), transparent 58%),
+           radial-gradient(1200px 900px at 30% 20%, rgba(255,197,61,.16), transparent 66%),
+           linear-gradient(180deg, #fff7ea 0%, #ffefd8 100%);
+         display: flex; align-items: center; justify-content: center; }
+  .scene { perspective: 1500px; }
+  .board { width: 1010px; height: 1010px; transform: rotateX(38deg) rotateZ(-7deg); transform-style: preserve-3d;
+           border-radius: 34px;
+           box-shadow: 0 9px 0 #1f1b2e, 40px 46px 0 rgba(31,27,46,.12);
+           background: #fffdf6;
+           border: 10px solid #1f1b2e; }
+  .cap { position: absolute; bottom: 34px; left: 0; right: 0; text-align: center;
+         font-size: 22px; font-weight: 900; color: #a89fb5; letter-spacing: .18em; }
+  svg text { font-family: "Segoe UI", system-ui, sans-serif; }
+</style></head>
+<body><div class="scene"><div id="board" class="board"></div></div>
+<div class="cap">VARIANT C — TOON FIELD · 38° TILT · INK OUTLINES (C3 SIBLING)</div>
+<script>
+window.addEventListener("error", e => { const d = document.createElement("div"); d.style.cssText="position:fixed;top:6px;left:6px;background:#300;color:#fff;padding:8px;font-size:14px;z-index:99"; d.textContent = "ERR: " + e.message; document.body.appendChild(d); });
+const G = { brown:"#b0714a", lightblue:"#9fdcf8", pink:"#ff8fb8", orange:"#ffb26b", red:"#ff8a94", yellow:"#ffdf7e", green:"#7dedaf", darkblue:"#86b9ff" };
+const BOARD = [
+  ["GO","corner"], ["Mediterranean Ave","prop","brown"], ["Community Chest","card"], ["Baltic Ave","prop","brown"],
+  ["Income Tax","tax"], ["Reading RR","rr"], ["Oriental Ave","prop","lightblue"], ["Chance","card"],
+  ["Vermont Ave","prop","lightblue"], ["Connecticut Ave","prop","lightblue"], ["Jail","corner"],
+  ["St. Charles Pl","prop","pink"], ["Electric Co","prop","utility"], ["States Ave","prop","pink"], ["Virginia Ave","prop","pink"],
+  ["Penn RR","rr"], ["St. James Pl","prop","orange"], ["Community Chest","card"], ["Tennessee Ave","prop","orange"],
+  ["New York Ave","prop","orange"], ["Free Parking","corner"], ["Kentucky Ave","prop","red"], ["Chance","card"],
+  ["Indiana Ave","prop","red"], ["Illinois Ave","prop","red"], ["B&O RR","rr"], ["Atlantic Ave","prop","yellow"],
+  ["Ventnor Ave","prop","yellow"], ["Water Works","prop","utility"], ["Marvin Gardens","prop","yellow"],
+  ["Go To Jail","corner"], ["Pacific Ave","prop","green"], ["North Carolina","prop","green"], ["Community Chest","card"],
+  ["Pennsylvania Ave","prop","green"], ["Short Line","rr"], ["Chance","card"], ["Park Place","prop","darkblue"],
+  ["Luxury Tax","tax"], ["Boardwalk","prop","darkblue"]
+];
+const cell = 92, C = cell * 11, ink = "#1f1b2e";
+const el = document.getElementById("board");
+el.innerHTML = `<svg width="990" height="990" viewBox="0 0 ${C} ${C}" style="display:block;margin:auto">
+  <rect width="${C}" height="${C}" fill="#fffdf6"/>
+  <circle cx="${C/2}" cy="${C/2 - 40}" r="120" fill="#fff" stroke="${ink}" stroke-width="3"/>
+  <text x="${C/2}" y="${C/2 - 30}" text-anchor="middle" font-size="56" font-weight="900" fill="${ink}">Dice <tspan fill="#ff6b81">&amp;</tspan></text>
+  <text x="${C/2}" y="${C/2 + 24}" text-anchor="middle" font-size="40" font-weight="900" fill="${ink}">Deeds</text>
+  <text x="${C/2}" y="${C/2 + 58}" text-anchor="middle" font-size="16" font-weight="800" fill="#a89fb5">THE 3D BOARD</text>
+  <g id="t"></g></svg>`;
+const layer = el.querySelector("#t");
+let svg = "";
+function tileRect(idx, col, row, side) {
+  const [name, type, group] = BOARD[idx];
+  const x = col * cell, y = row * cell;
+  const groupColors = { brown:G.brown, lightblue:G.lightblue, pink:G.pink, orange:G.orange, red:G.red, yellow:G.yellow, green:G.green, darkblue:G.darkblue };
+  const barColor = type === "prop" ? groupColors[group] : type === "rr" ? "#c9b8ff" : type === "utility" ? "#7fe3a8" : type === "card" ? "#ffd23e" : "#ffcf9e";
+  const strip = 13;
+  let bar = "";
+  if (barColor) {
+    if (side === "bottom") bar = `<rect x="${x+6}" y="${y+4}" width="${cell-12}" height="${strip}" fill="${barColor}" stroke="${ink}" stroke-width="2.5" rx="6"/>`;
+    if (side === "top") bar = `<rect x="${x+6}" y="${y+cell-strip-4}" width="${cell-12}" height="${strip}" fill="${barColor}" stroke="${ink}" stroke-width="2.5" rx="6"/>`;
+    if (side === "left") bar = `<rect x="${x+4}" y="${y+6}" width="${strip}" height="${cell-12}" fill="${barColor}" stroke="${ink}" stroke-width="2.5" rx="6"/>`;
+    if (side === "right") bar = `<rect x="${x+cell-strip-4}" y="${y+6}" width="${strip}" height="${cell-12}" fill="${barColor}" stroke="${ink}" stroke-width="2.5" rx="6"/>`;
+  }
+  const round = 14;
+  svg += `<rect x="${x+3}" y="${y+3}" width="${cell-6}" height="${cell-6}" fill="#fff" rx="${round}" stroke="${ink}" stroke-width="3"/>${bar}`;
+  if (type === "corner") {
+    svg += `<text x="${x + cell/2}" y="${y + cell/2 + 7}" text-anchor="middle" font-size="19" font-weight="900" fill="${ink}">${name.toUpperCase()}</text>`;
+  } else if (side === "left" || side === "right") {
+    const rx = side === "left" ? x + 32 : x + cell - 20;
+    svg += `<text transform="rotate(${side === "left" ? 90 : -90} ${rx} ${y + cell/2})" x="${rx}" y="${y + cell/2}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#6b5f7c">${name}</text>`;
+  } else {
+    const ly = side === "bottom" ? y + cell - 18 : y + 30;
+    svg += `<text x="${x + cell/2}" y="${ly}" text-anchor="middle" font-size="10.5" font-weight="800" fill="#6b5f7c">${name}</text>`;
+  }
+}
+for (let i = 1; i <= 9; i++) tileRect(i, 10 - i, 10, "bottom");
+for (let i = 11; i <= 19; i++) tileRect(i, 0, 10 - (i - 10), "left");
+for (let i = 21; i <= 29; i++) tileRect(i, i - 20, 0, "top");
+for (let i = 31; i <= 39; i++) tileRect(i, 10, i - 30, "right");
+tileRect(0, 10, 10, "corner");
+tileRect(10, 0, 10, "corner");
+tileRect(20, 0, 0, "corner");
+tileRect(30, 10, 0, "corner");
+(function tokens() {
+  const tileCoords = { 1: [10 - 1, 10], 3: [10 - 3, 10], 8: [10 - 8, 10] };
+  const spots = [[1, -14], [1, 14], [3, -14], [3, 14], [8, -14], [8, 14]];
+  const colors = ["#ff6b81", "#ffb26b", "#ffd23e", "#7dedaf", "#0072bb", "#c9b8ff"];
+  const extra = [];
+  spots.forEach(([idx, off], si) => {
+    const [col, row] = tileCoords[idx];
+    const cx = col * cell + cell / 2 + off, cy = row * cell + cell / 2;
+    extra.push(`<circle cx="${cx}" cy="${cy}" r="10" fill="${colors[si]}" stroke="${ink}" stroke-width="3"/>`);
+  });
+  layer.innerHTML = svg + extra.join("");
+})();
+</script>
+</body>
+</html>

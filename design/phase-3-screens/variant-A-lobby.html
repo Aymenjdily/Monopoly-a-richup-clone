@@ -1,0 +1,51 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { width: 1600px; height: 1000px; overflow: hidden;
+         font-family: "Segoe UI", system-ui, sans-serif;
+         background: radial-gradient(1200px 800px at 70% -10%, #1e2a4a 0%, #0b0e1a 55%, #070812 100%);
+         color: #e8eaf2; display: flex; align-items: center; justify-content: center; }
+  .wrap { width: 1040px; }
+  .panel { background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.12);
+           border-radius: 20px; padding: 44px 52px; }
+  .kicker { letter-spacing: .35em; font-size: 12px; color: #6ea8ff; text-transform: uppercase; }
+  h1 { font-size: 44px; font-weight: 800; margin: 10px 0 26px; }
+  .codebox { display: flex; align-items: center; gap: 18px; margin-bottom: 34px; }
+  .code { font-family: Consolas, monospace; font-size: 44px; font-weight: 800; letter-spacing: .35em;
+          background: #0e1220; border: 1px solid #2a3350; border-radius: 14px; padding: 12px 26px 12px 34px; color: #8fd3ff; }
+  .copy { border: 1px solid #2a3350; background: transparent; color: #bcd3ff; border-radius: 10px;
+          padding: 12px 20px; font-size: 15px; }
+  .players { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 36px; }
+  .p { display: flex; align-items: center; gap: 12px; background: #0e1220; border: 1px solid #232a44;
+       border-radius: 12px; padding: 14px 16px; }
+  .dot { width: 26px; height: 26px; border-radius: 50%; }
+  .nm { font-size: 17px; font-weight: 600; }
+  .tags { margin-left: auto; font-size: 12px; color: #7dd48f; }
+  .tag { color: #f6c945; border: 1px solid #5b4b12; border-radius: 8px; padding: 2px 8px; font-size: 11px; }
+  button.big { width: 100%; border: none; border-radius: 12px; padding: 16px; font-size: 18px;
+               font-weight: 800; color: #04102a; background: linear-gradient(90deg,#4f8cff,#38e1ff); }
+  .hint { text-align: center; color: #6b7392; font-size: 14px; margin-top: 14px; }
+</style></head>
+<body><div class="wrap">
+  <div class="panel">
+    <div class="kicker">Room lobby</div>
+    <h1>Waiting room</h1>
+    <div class="codebox">
+      <div class="code">X4K9RD</div>
+      <div class="copy">copy</div>
+    </div>
+    <div class="players">
+      <div class="p"><div class="dot" style="background:#e5484d"></div><span class="nm">Sasha</span><span class="tag">HOST</span><span class="tags">ready</span></div>
+      <div class="p"><div class="dot" style="background:#f5a623"></div><span class="nm">Juno</span><span class="tags">ready</span></div>
+      <div class="p"><div class="dot" style="background:#f7cf3c"></div><span class="nm">Marek</span><span class="tags">ready</span></div>
+      <div class="p"><div class="dot" style="background:#46a758"></div><span class="nm">…</span></div>
+      <div class="p"><div class="dot" style="background:#0072bb"></div><span class="nm">…</span></div>
+      <div class="p"><div class="dot" style="background:#a459d1"></div><span class="nm">…</span></div>
+    </div>
+    <button class="big">Start game</button>
+    <div class="hint">At least 2 players needed. 3 / 6 seats taken · code valid until the room closes.</div>
+  </div>
+</div></body>
+</html>
