@@ -1,0 +1,23 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// The only table in v1 (AGENTS.md section 9):
+// the engine state is the database of record, persisted as one JSON column.
+model Game {
+  id        String   @id @default(cuid())
+  code      String   @unique // 6-char join code
+  status    String // "lobby" | "playing" | "finished"
+  state     Json // full engine state snapshot (authoritative)
+  version   Int      @default(0) // bumped on every confirmed action
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
