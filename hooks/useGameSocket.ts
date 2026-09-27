@@ -52,7 +52,7 @@ function entryFor(code: string): GameSocketEntry {
   if (!entry) {
     entry = {
       // Socket.IO lives on SOCKET_PATH; SOCKET_ATTACH_URL is only the HTTP route that boots it.
-      socket: io({ path: SOCKET_PATH, autoConnect: false, transports: ["websocket", "polling"] }),
+      socket: io({ path: SOCKET_PATH, autoConnect: false, transports: ["websocket", "polling"], timeout: 5000 }),
       listeners: new Set(),
       state: { connected: false, room: null, game: null, error: null },
       joinedCode: null,
@@ -100,9 +100,13 @@ export function useGameSocket(
     }
 
     if (!entry.socket.connected) {
-      entry.socket.connect();
-      // Attach the Socket.IO server (first request bootstraps it in dev/HMR).
-      fetch(SOCKET_ATTACH_URL, { method: "GET" }).catch(() => undefined);
+      // Boot the Socket.IO server first (a fresh server only attaches it on this request),
+      // then connect: a WebSocket opened before the attach would hang until its timeout.
+      fetch(SOCKET_ATTACH_URL, { method: "GET" })
+        .catch(() => undefined)
+        .finally(() => {
+          if (!entry.socket.connected) entry.socket.connect();
+        });
     } else if (entry.joinedCode === code) {
       const id = identityRef.current;
       entry.socket.emit("room:join", { code, identity: id ? { playerId: id.playerId, secret: id.secret } : undefined }, () => {});
@@ -117,12 +121,14 @@ export function useGameSocket(
     };
   }, [code]);
 
-  // Late identity (lobby join resolves after mount): refresh our snapshot.
+  // Late identity (seat taken / read from storage after connect): re-join as that seat so
+  // the server tracks our presence, and get a fresh snapshot with it.
   useEffect(() => {
     if (!identity?.playerId) return;
     const entry = entryFor(code);
     if (entry.socket.connected && entry.joinedCode === code) {
-      entry.socket.emit("state:request", { code });
+      const id = identityRef.current;
+      entry.socket.emit("room:join", { code, identity: id ? { playerId: id.playerId, secret: id.secret } : undefined }, () => {});
     }
   // Only a *new* identity should trigger a refresh — the object itself is recreated every render.
   }, [identity?.playerId, code]);

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { Seat } from "@/components/board3d/LobbyStage";
@@ -25,6 +26,7 @@ interface Identity {
 }
 
 export default function LobbyClient({ code }: { code: string }) {
+  const router = useRouter();
   const [me, setMe] = useState<Identity | null>(null);
   const [joinName, setJoinName] = useState("");
   const [busy, setBusy] = useState(false);
@@ -136,12 +138,15 @@ export default function LobbyClient({ code }: { code: string }) {
 
       {/* header */}
       <header className="pointer-events-none absolute inset-x-0 top-0 z-10 flex flex-wrap items-center gap-x-[18px] gap-y-3 px-4 pt-5 sm:px-14 sm:pt-11">
-        <Link
-          href="/"
+        <button
+          onClick={leaveRoom}
+          disabled={busy}
+          aria-label={seated ? "Leave room" : "Back home"}
+          title={seated ? "Leave room (frees your seat)" : "Back home"}
           className="pointer-events-auto grid h-[50px] w-[50px] flex-none place-items-center rounded-[14px] border-[3px] border-ink bg-white text-xl font-black shadow-[0_4px_0_#1f1b2e]"
         >
           ←
-        </Link>
+        </button>
         <div>
           <h1 className="text-[28px] font-black leading-none tracking-[-0.02em] sm:text-[38px]">Waiting room</h1>
           <p className="mt-1.5 text-sm font-extrabold text-[#a89fb5]">
@@ -281,6 +286,35 @@ export default function LobbyClient({ code }: { code: string }) {
     } catch (e) {
       setLocalError(e instanceof Error ? e.message : "Network error");
     } finally {
+      setBusy(false);
+    }
+  }
+
+  /** ← in the lobby: a seated player frees their seat (host passes on), then goes home. */
+  async function leaveRoom() {
+    if (!me || !seated) {
+      router.push("/");
+      return;
+    }
+    if (!window.confirm("Leave this room? Your seat will be freed.")) return;
+    setBusy(true);
+    setLocalError(null);
+    try {
+      const res = await fetch(`/api/rooms/${code}/leave`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ playerId: me.playerId, secret: me.secret }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Could not leave.");
+      try {
+        localStorage.removeItem(`dd:${code}`);
+      } catch {
+        /* ignore */
+      }
+      router.push("/");
+    } catch (e) {
+      setLocalError(e instanceof Error ? e.message : "Network error");
       setBusy(false);
     }
   }

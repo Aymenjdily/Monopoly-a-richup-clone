@@ -23,6 +23,7 @@ export function SideCard({
   busy,
   send,
   onOpenDeed,
+  onLeave,
 }: {
   state: ClientGameState;
   myId: string | null;
@@ -32,6 +33,8 @@ export function SideCard({
   busy: boolean;
   send: Send;
   onOpenDeed: (index: number) => void;
+  /** Forfeit and leave (shown in the Rules tab for seated, still-playing players). */
+  onLeave?: () => void;
 }) {
   const TABS: [SideTab, string][] = [
     ["history", "📜 History"],
@@ -56,7 +59,7 @@ export function SideCard({
       <div className="mt-1 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-width:thin]">
         {tab === "history" && <HistoryFeed state={state} myId={myId} />}
         {tab === "cities" && <MyCities state={state} myId={myId} busy={busy} send={send} onOpenDeed={onOpenDeed} />}
-        {tab === "rules" && <RulesList state={state} code={code} />}
+        {tab === "rules" && <RulesList state={state} code={code} onLeave={onLeave} />}
       </div>
     </div>
   );
@@ -171,7 +174,7 @@ function MyCities({ state, myId, busy, send, onOpenDeed }: { state: ClientGameSt
   );
 }
 
-function RulesList({ state, code }: { state: ClientGameState; code: string }) {
+function RulesList({ state, code, onLeave }: { state: ClientGameState; code: string; onLeave?: () => void }) {
   const s = settingsOf(state);
   const rows: [string, string][] = [
     ["Room code", code],
@@ -193,6 +196,14 @@ function RulesList({ state, code }: { state: ClientGameState; code: string }) {
         </div>
       ))}
       <p className="mt-3 text-xs font-bold text-[#a89fb5]">Rules were set by the host in the lobby and are locked for this game.</p>
+      {onLeave && (
+        <button
+          onClick={onLeave}
+          className="mt-5 w-full rounded-[14px] border-[3px] border-ink bg-white py-2.5 text-sm font-black text-coral shadow-[0_3px_0_#1f1b2e] hover:bg-[#fff0f2]"
+        >
+          🚪 Leave game (forfeit)
+        </button>
+      )}
     </div>
   );
 }

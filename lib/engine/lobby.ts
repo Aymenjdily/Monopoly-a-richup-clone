@@ -29,7 +29,7 @@ export function lobbyState(host: LobbyPlayerInput): GameState {
   const state: GameState = {
     version: 0,
     phase: "lobby",
-    players: [makePlayer(host, 0, true)],
+    players: [makePlayer(host, PLAYER_COLORS[0], true)],
     turn: { playerIdx: 0, phase: "preRoll", doublesCount: 0, rolled: false },
     dice: [1, 1],
     decks: { chance: [], chest: [] },
@@ -41,11 +41,17 @@ export function lobbyState(host: LobbyPlayerInput): GameState {
   return state;
 }
 
-function makePlayer(input: LobbyPlayerInput, idx: number, isHost: boolean): Player {
+/** First token color not already taken (keeps colors unique after someone leaves). */
+function nextColor(state: Pick<GameState, "players"> | null): string {
+  const used = new Set((state?.players ?? []).map((p) => p.colorToken));
+  return PLAYER_COLORS.find((c) => !used.has(c)) ?? PLAYER_COLORS[(state?.players.length ?? 0) % PLAYER_COLORS.length];
+}
+
+function makePlayer(input: LobbyPlayerInput, colorToken: string, isHost: boolean): Player {
   return {
     id: input.id,
     name: input.name,
-    colorToken: PLAYER_COLORS[idx % PLAYER_COLORS.length],
+    colorToken,
     money: 1500,
     position: 0,
     inJail: false,
@@ -70,7 +76,7 @@ export function joinLobby(state: GameState, player: LobbyPlayerInput): GameState
   if (state.players.some((p) => p.id === player.id)) {
     throw new Error("Player already in room.");
   }
-  const joined = makePlayer(player, state.players.length, false);
+  const joined = makePlayer(player, nextColor(state), false);
   state.players.push(joined);
   state.version += 1;
   logEvent(state, "info", `${player.name} joined the room.`, { actor: player.name });
@@ -90,7 +96,7 @@ export function addBot(state: GameState, botId: string): GameState {
   }
   const used = new Set(state.players.map((p) => p.name));
   const pick = BOT_NAMES.find((n) => !used.has(n)) ?? `Bot ${state.players.length}`;
-  const bot = makePlayer({ id: botId, name: pick }, state.players.length, false);
+  const bot = makePlayer({ id: botId, name: pick }, nextColor(state), false);
   bot.isBot = true;
   bot.secret = "";
   state.players.push(bot);
@@ -111,12 +117,7 @@ export function removePlayer(state: GameState, playerId: string): GameState {
     state.version += 1;
     return state;
   }
-  if (gone && gone.isHost) {
-    state.players[0].isHost = true;
-    logEvent(state, "info", `${state.players[0].name} is the new host.`, {
-      actor: state.players[0].name,
-    });
-  }
+  if (gone && gone.isHost) passHost(state, idx - 1);
   state.version += 1;
   logEvent(state, "info", `${gone?.name ?? "A player"} left the room.`);
   return state;
@@ -158,3 +159,33 @@ function shuffled<T>(indices: T[], rng: Rng): T[] {
 }
 
 export { mulberry32 };
+
+/**
+ * Hands the host role to the next human after seat `fromIdx` (wrapping), preferring
+ * connected players; bots never host. No-op if no other human is left.
+ */
+export function passHost(state: GameState, fromIdx: number): void {
+  const n = state.players.length;
+  const order = Array.from({ length: n }, (_, k) => state.players[(fromIdx + 1 + k + n) % n]);
+  const humans = order.filter((p) => !p.isBot && !p.bankrupt);
+  const next = humans.find((p) => p.connected) ?? humans[0];
+  if (!next || next.isHost) return;
+  for (const p of state.players) p.isHost = false;
+  next.isHost = true;
+  logEvent(state, "info", `${next.name} is the new host.`, { actor: next.name });
+}
+
+/**
+ * Presence change from the socket layer (AGENTS.md decision 6): a host who goes away hands
+ * the role to the next connected human. Returns false when nothing changed.
+ */
+export function setPresence(state: GameState, playerId: string, connected: boolean): boolean {
+  const idx = state.players.findIndex((p) => p.id === playerId);
+  const player = state.players[idx];
+  if (!player || player.isBot || player.connected === connected) return false;
+  player.connected = connected;
+  logEvent(state, "info", connected ? `${player.name} is back.` : `${player.name} went away.`, { actor: player.name });
+  if (!connected && player.isHost) passHost(state, idx);
+  state.version += 1;
+  return true;
+}

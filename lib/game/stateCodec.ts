@@ -38,12 +38,31 @@ export function deserializeState(raw: unknown): GameState {
   }));
   const { ownership: _omit, ...rest } = data;
   void _omit;
+  const log = Array.isArray(data.log) ? data.log.map((e) => ({ ...e, text: repairText(e.text) })) : data.log;
   return {
     ...(rest as unknown as GameState),
     players,
     ownership,
+    log,
     pending: data.pending as GameState["pending"],
   };
+}
+
+/**
+ * Games saved before an encoding fix have UTF-8 dashes/emoji stored as mis-decoded text
+ * (an em dash showed up as three Latin-1/cp1252 characters). Repair them on load.
+ */
+// Built from char codes on purpose: literal mojibake in source is how this bug started.
+const chars = (...codes: number[]) => String.fromCodePoint(...codes);
+const MOJIBAKE: [string, string][] = [
+  [chars(0xe2, 0x20ac, 0x201d), chars(0x2014)], // em dash
+  [chars(0xe2, 0x20ac, 0x201c), chars(0x2013)], // en dash
+  [chars(0xf0, 0x178, 0x2018, 0x2018), chars(0x1f451)], // crown
+];
+const SUSPECT = [chars(0xe2), chars(0xf0)];
+export function repairText(text: string): string {
+  if (typeof text !== "string" || !SUSPECT.some((c) => text.includes(c))) return text;
+  return MOJIBAKE.reduce((t, [bad, good]) => t.split(bad).join(good), text);
 }
 
 /** Full state minus everything the browser must never see (AGENTS.md section 6). */

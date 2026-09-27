@@ -3,6 +3,7 @@ import "@/lib/server/serverOnly";
 import { prisma } from "@/lib/prisma";
 import { deserializeState, sanitizedClientState, serializeState, publicRoomView } from "@/lib/game/stateCodec";
 import { applyAction } from "@/lib/engine/engine";
+import { setPresence } from "@/lib/engine/lobby";
 import type { GameAction, GameState } from "@/lib/engine/types";
 import type { RoomPublicView } from "@/lib/shared/events";
 import { roomChannel } from "@/lib/shared/events";
@@ -116,4 +117,23 @@ function cryptoRandomSeed(): number {
 
 export function makeEngineRng(): Rng {
   return mulberry32(cryptoRandomSeed());
+}
+
+/**
+ * Presence change from the socket layer (AGENTS.md decision 6): marks a player connected /
+ * away and hands the host role on when the host leaves. Serialized with every other write.
+ */
+export async function updatePresence(code: string, playerId: string, connected: boolean): Promise<void> {
+  const normalized = code.toUpperCase();
+  await withRoomLock(normalized, async () => {
+    try {
+      const loaded = await loadGameState(normalized);
+      if (!loaded) return;
+      if (setPresence(loaded.state, playerId, connected)) {
+        await persistGameState(loaded.game.id, normalized, loaded.state);
+      }
+    } catch {
+      // presence is best-effort; never crash the socket server over it
+    }
+  });
 }

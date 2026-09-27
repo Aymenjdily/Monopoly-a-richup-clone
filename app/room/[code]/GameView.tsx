@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { hasWebGL } from "@/components/board3d/webgl";
@@ -25,6 +26,7 @@ const DESKTOP_SHIFT = 170;
  * The browser only sends actions; the server validates and broadcasts (AGENTS.md section 6).
  */
 export default function GameView({ code, socket, myId }: { code: string; socket: GameSocketApi; myId: string | null }) {
+  const router = useRouter();
   const [webgl, setWebgl] = useState<boolean | null>(null);
   const [wide, setWide] = useState(true);
   const [deed, setDeed] = useState<number | null>(null);
@@ -86,11 +88,24 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
     [socket]
   );
   const openDeed = useCallback((i: number) => setDeed(i), []);
+  const leaveGame = useCallback(() => {
+    if (!window.confirm("Leave this game? You'll forfeit: your cities go back to the bank.")) return;
+    send({ type: "leaveRoom" }, () => {
+      try {
+        localStorage.removeItem(`dd:${code}`);
+      } catch {
+        /* ignore */
+      }
+      router.push("/");
+    });
+  }, [send, code, router]);
 
   if (webgl === false) return <NoWebGL />;
   if (!game || !state || webgl === null) {
     return <main className="grid h-dvh place-items-center bg-shader text-xl font-black text-[#a89fb5]">loading the board…</main>;
   }
+  const meNow = state.players.find((p) => p.id === myId);
+  const canLeave = Boolean(meNow && !meNow.bankrupt && state.phase === "playing");
   const winner = state.phase === "finished" ? state.players.find((p) => p.id === state.winner) : undefined;
 
   return (
@@ -114,7 +129,7 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
 
         {wide ? (
           <div className="absolute bottom-6 right-6 top-[110px] w-[360px]">
-            <SideCard state={state} myId={myId} code={code} tab={tab} onTab={setTab} busy={busy} send={send} onOpenDeed={openDeed} />
+            <SideCard state={state} myId={myId} code={code} tab={tab} onTab={setTab} busy={busy} send={send} onOpenDeed={openDeed} onLeave={canLeave ? leaveGame : undefined} />
           </div>
         ) : (
           <button
@@ -144,7 +159,7 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
         <div className="fixed inset-0 z-30 flex justify-end">
           <button aria-label="Close" className="absolute inset-0 bg-ink/30" onClick={() => setDrawer(false)} />
           <div className="relative h-full w-[92vw] max-w-[380px] p-3">
-            <SideCard state={state} myId={myId} code={code} tab={tab} onTab={setTab} busy={busy} send={send} onOpenDeed={openDeed} />
+            <SideCard state={state} myId={myId} code={code} tab={tab} onTab={setTab} busy={busy} send={send} onOpenDeed={openDeed} onLeave={canLeave ? leaveGame : undefined} />
           </div>
         </div>
       )}

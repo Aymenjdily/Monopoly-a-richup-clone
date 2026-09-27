@@ -63,3 +63,12 @@ describe("stateCodec", () => {
     expect(parsed.players[0].secret).toBeUndefined();
   });
 });
+
+describe("legacy log repair", () => {
+  it("fixes mis-encoded dashes and crowns saved by older builds", async () => {
+    const { repairText } = await import("./stateCodec");
+    expect(repairText("\u00e2\u20ac\u201d Sasha's turn \u00e2\u20ac\u201d")).toBe("\u2014 Sasha's turn \u2014");
+    expect(repairText("\u00f0\u0178\u2018\u2018 Juno wins the game!")).toBe("\u{1F451} Juno wins the game!");
+    expect(repairText("plain text stays")).toBe("plain text stays");
+  });
+});

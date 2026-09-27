@@ -10,7 +10,7 @@ import { SOCKET_PATH, roomChannel } from "@/lib/shared/events";
 import type { ClientToServerEvents, ServerToClientEvents, RoomIdentity } from "@/lib/shared/events";
 import { getIoServer, setIoServer } from "@/lib/server/socketRef";
 import { deserializeState, sanitizedClientState, publicRoomView } from "@/lib/game/stateCodec";
-import { processGameAction } from "@/lib/server/gameService";
+import { processGameAction, updatePresence } from "@/lib/server/gameService";
 import { scheduleBotTurn } from "@/lib/server/botRuntime";
 
 interface SocketLike {
@@ -72,6 +72,27 @@ export function ensureSocketServer(
       socket.join(roomChannel(code));
       emitSnapshot(socket, room);
       ack?.(true);
+      if (payload.identity) {
+        // presence: this socket now speaks for that seat
+        socket.data.seat = { code, playerId: payload.identity.playerId };
+        cancelAway(code, payload.identity.playerId);
+        void updatePresence(code, payload.identity.playerId, true);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      const seat = socket.data.seat as { code: string; playerId: string } | undefined;
+      if (!seat) return;
+      // grace period: a page reload reconnects within a second or two, so don't flap the host
+      cancelAway(seat.code, seat.playerId);
+      const timer = setTimeout(async () => {
+        awayTimers.delete(awayKey(seat.code, seat.playerId));
+        const others = await io.in(roomChannel(seat.code)).fetchSockets();
+        const stillHere = others.some((s) => (s.data.seat as { playerId?: string } | undefined)?.playerId === seat.playerId);
+        if (!stillHere) void updatePresence(seat.code, seat.playerId, false);
+      }, AWAY_GRACE_MS);
+      timer.unref?.();
+      awayTimers.set(awayKey(seat.code, seat.playerId), timer);
     });
 
     socket.on("state:request", async ({ code }) => {
@@ -107,6 +128,16 @@ export function ensureSocketServer(
   });
 
   setIoServer(io);
+}
+
+/** Memory-only presence timers (like bot timers: never part of engine state). */
+const AWAY_GRACE_MS = 4000;
+const awayTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const awayKey = (code: string, playerId: string) => `${code}:${playerId}`;
+function cancelAway(code: string, playerId: string): void {
+  const t = awayTimers.get(awayKey(code, playerId));
+  if (t) clearTimeout(t);
+  awayTimers.delete(awayKey(code, playerId));
 }
 
 function identityValid(room: LoadedRoom, identity: RoomIdentity): boolean {

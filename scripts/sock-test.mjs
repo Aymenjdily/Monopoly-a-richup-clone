@@ -20,7 +20,7 @@ a.on("connect", () => a.emit("room:join", { code, identity: { playerId, secret }
 b.on("connect", () => b.emit("room:join", { code }, (ok) => report("B", `viewerJoined=${ok}`)));
 
 // client A: whenever it is A's turn, push the turn forward (handles doubles + buys)
-a.on("game:state", ({ code: c, version, state }) => {
+a.on("game:state", ({ version, state }) => {
   report("A", `state v${version}`);
   const turn = state.turn;
   const me = state.players.find((p) => p.id === playerId);

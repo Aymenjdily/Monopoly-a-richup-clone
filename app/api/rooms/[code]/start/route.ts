@@ -1,6 +1,8 @@
 import { randomInt } from "node:crypto";
 import { NextResponse } from "next/server";
 
+import { withRoomLock } from "@/lib/server/botRuntime";
+
 import { broadcastGame } from "@/lib/server/gameService";
 import { prisma } from "@/lib/prisma";
 import { deserializeState, serializeState } from "@/lib/game/stateCodec";
@@ -10,7 +12,7 @@ import { scheduleBotTurn } from "@/lib/server/botRuntime";
 
 export const runtime = "nodejs";
 
-export async function POST(
+async function handlePOST(
   request: Request,
   { params }: { params: Promise<{ code: string }> }
 ) {
@@ -67,4 +69,10 @@ export async function POST(
     }
     return NextResponse.json({ error: "Failed to start room" }, { status: 500 });
   }
+}
+
+/** Lobby writes are read-modify-write on one JSON row: serialize them per room (AGENTS.md trap 11). */
+export async function POST(request: Request, ctx: { params: Promise<{ code: string }> }) {
+  const { code } = await ctx.params;
+  return withRoomLock(code.toUpperCase(), () => handlePOST(request, ctx));
 }

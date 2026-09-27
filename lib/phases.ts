@@ -20,7 +20,7 @@ export const PHASES: Phase[] = [
   { index: 4, name: "Real-time sync", status: "done", designGate: false },
   { index: 5, name: "3D board", status: "done", designGate: true },
   { index: 6, name: "Game HUD", status: "done", designGate: true },
-  { index: 7, name: "Full loop + polish", status: "not started", designGate: true },
+  { index: 7, name: "Full loop + polish", status: "done", designGate: true },
 ];
 
 export const phasesList: Phase[] = PHASES;

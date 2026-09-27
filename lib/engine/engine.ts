@@ -7,6 +7,7 @@ import {
   rentDue,
   spaceIndicesOfOwner,
 } from "./ownershipRules";
+import { passHost } from "./lobby";
 import { settingsOf } from "./settings";
 import { logEvent, JAIL_FINE, JAIL_TILE, MAX_DOUBLES, MAX_JAIL_TURNS } from "./types";
 import type {
@@ -51,6 +52,21 @@ export function applyAction(input: EngineInput): ApplyResult {
   if (state.players.length < 2) {
     return reject("Not enough players.");
   }
+  // Leaving is allowed at any time, not only on your turn (forfeit).
+  if (action.type === "leaveRoom") {
+    const leaverIdx = state.players.findIndex((p) => p.id === playerId);
+    const leaver = state.players[leaverIdx];
+    if (!leaver) return reject("You are not in this game.");
+    if (leaver.bankrupt) return reject("You are already out of this game.");
+    const wasTheirTurn = state.turn.playerIdx === leaverIdx;
+    logEvent(state, "info", `${leaver.name} left the game (forfeit).`, { actor: leaver.name });
+    leaver.connected = false;
+    goBankrupt(state, leaver, "bank");
+    if (leaver.isHost) passHost(state, leaverIdx);
+    if (state.phase === "playing" && wasTheirTurn) nextPlayer(state);
+    return accept(state);
+  }
+
   const actor = state.players[state.turn.playerIdx];
   if (!actor) return reject("Turn points to a missing player.");
   if (actor.bankrupt) return reject("Current player is bankrupt.");
