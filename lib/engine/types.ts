@@ -43,6 +43,8 @@ export interface Player {
   connected: boolean;
   isHost: boolean;
   isBot: boolean;
+  /** Bot personality (public). Absent on humans and on bots saved before styles existed. */
+  botStyle?: "cautious" | "balanced" | "aggressive";
   /** Server-side secret used to authenticate actions; never sent to any client. */
   secret: string;
   /** Get-out-of-jail cards held (deck machinery arrives in Phase 2, count is authoritative state). */

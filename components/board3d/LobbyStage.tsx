@@ -10,6 +10,9 @@ import { Canvas, useThree } from "@react-three/fiber";
 import { useEffect, useState } from "react";
 import * as THREE from "three";
 
+import { AddBot, BOT_STYLE_LABEL } from "@/components/ui/AddBot";
+import type { BotStyle } from "@/lib/engine/bots";
+
 import { Pawn, useCanvasTexture } from "./pieces";
 import { SceneBase, canvasGl } from "./SceneBase";
 import { drawGlow, makeCanvas, rr, FONT } from "./textures";
@@ -21,6 +24,7 @@ export interface Seat {
   color: string;
   isHost: boolean;
   isBot: boolean;
+  botStyle?: BotStyle;
   isMe: boolean;
 }
 
@@ -29,7 +33,7 @@ export interface LobbyStageProps {
   /** host controls (add/remove bots) */
   canManage: boolean;
   busy?: boolean;
-  onAddBot: () => void;
+  onAddBot: (style: BotStyle) => void;
   onRemoveBot: (id: string) => void;
 }
 
@@ -194,7 +198,7 @@ function SeatLabel({ seat, canManage, busy, onAddBot, onRemoveBot }: { seat: Sea
           </div>
           <div className="flex gap-1.5">
             {seat.isHost && <Badge className="bg-brass">HOST ★</Badge>}
-            {seat.isBot && <Badge className="bg-lilac">BOT</Badge>}
+            {seat.isBot && <Badge className="bg-lilac">{seat.botStyle ? `${BOT_STYLE_LABEL[seat.botStyle].toUpperCase()} BOT` : "BOT"}</Badge>}
             {seat.isBot && canManage && (
               <button
                 onClick={() => onRemoveBot(seat.id)}
@@ -209,13 +213,12 @@ function SeatLabel({ seat, canManage, busy, onAddBot, onRemoveBot }: { seat: Sea
         </>
       ) : canManage ? (
         <>
-          <button
-            onClick={onAddBot}
-            disabled={busy}
-            className="whitespace-nowrap rounded-full border-2 border-dashed border-line bg-row px-4 py-[7px] text-[15px] font-extrabold hover:bg-parchment disabled:opacity-60"
-          >
-            <b className="text-coral">＋</b> Add bot
-          </button>
+          <AddBot
+            busy={busy}
+            onAdd={onAddBot}
+            buttonClassName="whitespace-nowrap rounded-full border-2 border-dashed border-line bg-row px-4 py-[7px] text-[15px] font-extrabold hover:bg-parchment disabled:opacity-60"
+            choicesClassName="flex flex-col items-center gap-1.5 rounded-[16px] border-2 border-line bg-parchment p-2 shadow-chip"
+          />
           <small className="whitespace-nowrap text-xs font-semibold text-on-table-muted">or invite a friend</small>
         </>
       ) : (

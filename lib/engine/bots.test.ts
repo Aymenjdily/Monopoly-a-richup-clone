@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { botChoose, BOT_BUY_RESERVE } from "./bots";
+import { botChoose, botChooseRules, botOptions, BOT_BUY_RESERVE } from "./bots";
+import { applyAction } from "./engine";
 import { joinLobby, lobbyState, startGame } from "./lobby";
 import { addBot, removePlayer } from "./lobby";
 import { mulberry32 } from "./rng";
@@ -62,6 +63,33 @@ describe("botChoose policy", () => {
     const s2 = bootState();
     s2.players[0].bankrupt = true;
     expect(botChoose(s2)).toBeNull();
+  });
+});
+
+describe("whole games played by the rule brain", () => {
+  it("never produces an illegal move, and bots build once they own a set", () => {
+    let builds = 0;
+    for (const seed of [3, 11, 42]) {
+      let s = lobbyState({ id: "b0", name: "Host" });
+      s.players[0].isBot = true;
+      s.players[0].botStyle = "balanced";
+      s = addBot(s, "b1", "cautious");
+      s = addBot(s, "b2", "aggressive");
+      const rng = mulberry32(seed);
+      s = startGame(s, rng);
+      for (let step = 0; step < 4000 && s.phase === "playing"; step++) {
+        const pick = botChooseRules(s);
+        expect(pick).not.toBeNull();
+        expect(botOptions(s).map((o) => o.id)).toContain(pick!.id);
+        const actor = s.players[s.turn.playerIdx];
+        const res = applyAction({ state: s, playerId: actor.id, action: pick!.action, rng });
+        expect(res.ok, `${pick!.id} rejected at step ${step} (seed ${seed})`).toBe(true);
+        if (!res.ok) return;
+        if (pick!.action.type === "build") builds++;
+        s = res.state;
+      }
+    }
+    expect(builds).toBeGreaterThan(0);
   });
 });
 

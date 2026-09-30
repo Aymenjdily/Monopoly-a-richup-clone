@@ -35,9 +35,11 @@ engine design, the state sync model, and the UI.
 ### In scope for v1
 
 - Room system: create room, join by code, lobby with player list, kickoff, leave/disconnect/reconnect
-- Simple bot players: the host can fill empty lobby seats with bots (`isBot`); bots play
-  their turns server-side with basic strategy (roll, buy if affordable with reserve,
-  pay jail fine / use card, end turn). No bot building/trading.
+- Bot players: the host can fill empty lobby seats with bots (`isBot`) and picks each bot's
+  personality (`botStyle`: cautious / balanced / aggressive). Bots play their turns
+  server-side: roll, buy or pass, pay jail fine / use card, build on full sets, unmortgage,
+  end turn. The move is picked by Jev (TypeSafe AI) among the engine's legal options, with a
+  rule-based fallback. No bot trading.
 - 40-tile board (standard Monopoly-style layout) defined as a typed config
 - Standard rules: buy vs decline, rent, color sets, houses, hotels, mortgage, un-mortgage,
   Chance and Community Chest, Income Tax, Luxury Tax, Go, Go To Jail, Jail (3 turns max,
@@ -210,11 +212,17 @@ Do not re-open these. Build to them unless the user changes them.
 12. **The board layout** is data, not code: a typed `BoardSpace[]` config with all 40
     spaces (names, groups/colors, prices, rents, houseCost, effects). Adding a themed
     version means editing the config, not rewriting rules.
-13. **Bots**: host-only, added in lobby via API/UI to empty seats. Pure strategy chooser
-    lives in the engine (`lib/engine/bots.ts`); the server drives bot turns on timers that
-    are deliberately memory-only and NEVER part of engine state — every snapshot read
-    re-kicks the loop if it is a bot's turn (restart safety). Bots do not build, trade,
-    or accept debts beyond the automatic liquidation already in the engine.
+13. **Bots**: host-only, added in lobby via API/UI to empty seats, each with a personality
+    (`Player.botStyle`, default balanced). The engine stays pure (`lib/engine/bots.ts`):
+    `botOptions` lists the legal moves and `botChooseRules` is the rule-based brain. The
+    server (`lib/server/botBrain.ts`) asks Jev to pick one option id when `TYPESAFE_API_KEY`
+    is set; on a missing key, timeout (1.5 s), error, unknown id or low confidence the rule
+    brain decides, so a bot turn never hangs. Jev only receives public game facts and can
+    only select an engine-generated action. The model call runs outside the room lock and
+    the move is applied only if the version is unchanged. The server drives bot turns on
+    timers that are deliberately memory-only and NEVER part of engine state — every
+    snapshot read re-kicks the loop if it is a bot's turn (restart safety). Bots do not
+    trade or accept debts beyond the automatic liquidation already in the engine.
 
 ## 9. Data model
 
@@ -336,6 +344,9 @@ This is the standout feature; the rules are specific.
 - `DATABASE_URL` — Neon **pooled** connection string (runtime)
 - `DIRECT_URL` — Neon **direct** connection string (migrations only)
 - `NEXT_PUBLIC_APP_URL` — dev UI convenience only
+- `TYPESAFE_API_KEY` — optional, **server-only** Jev key for bot decisions. Read only in
+  `lib/server/botBrain.ts`; never logged, never sent to the client. Without it bots use the
+  rule-based brain.
 
 There are no other secrets in v1. If a task seems to need more, ask before adding env vars.
 

@@ -85,6 +85,7 @@ export function publicRoomView(code: string, state: GameState) {
       colorToken: p.colorToken,
       isHost: p.isHost,
       isBot: p.isBot,
+      botStyle: p.botStyle,
       connected: p.connected,
       bankrupt: p.bankrupt,
       money: p.money,

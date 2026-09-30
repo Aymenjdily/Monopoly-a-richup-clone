@@ -3,7 +3,7 @@ import "@/lib/server/serverOnly";
 import { prisma } from "@/lib/prisma";
 import { persistGameState } from "./gameService";
 import { applyAction } from "@/lib/engine/engine";
-import { botChoose } from "@/lib/engine/bots";
+import { decideBotMove } from "./botBrain";
 import { deserializeState } from "@/lib/game/stateCodec";
 import { mulberry32, type Rng } from "@/lib/engine/rng";
 import type { GameAction, GameState } from "@/lib/engine/types";
@@ -53,6 +53,31 @@ export function scheduleBotTurn(code: string, delay = 800): void {
 }
 
 async function runBotTurn(code: string): Promise<void> {
+  // 1) Decide outside the room lock: the model call may take up to JEV_TIMEOUT_MS and must
+  //    never block other writes to the room.
+  let seen;
+  try {
+    seen = await prisma.game.findUnique({ where: { code } });
+  } catch {
+    return;
+  }
+  if (!seen || seen.status !== "playing") return;
+  const seenState = deserializeState(seen.state);
+  const seenActor = seenState.players[seenState.turn.playerIdx];
+  if (!seenActor?.isBot || seenActor.bankrupt) return;
+  // Never act twice on the same engine version (protects against tight retry loops).
+  if ((lastActedVersion.get(code) ?? -1) === seen.version) return;
+
+  const decision = await decideBotMove(seenState);
+  if (!decision) return;
+  const action: GameAction = decision.option.action;
+  if (decision.source !== "single") {
+    const why = decision.fallback ? ` (${decision.fallback})` : decision.confidence !== undefined ? ` ${decision.confidence.toFixed(2)}` : "";
+    console.log(`[bot] ${code} ${seenActor.name} (${seenActor.botStyle ?? "balanced"}) -> ${decision.option.id} via ${decision.source}${why}`);
+  }
+  const decidedAt = seen.version;
+
+  // 2) Apply under the lock, only if the room is still exactly where we decided.
   await withRoomLock(code, async () => {
     let game;
     try {
@@ -61,18 +86,14 @@ async function runBotTurn(code: string): Promise<void> {
       return;
     }
     if (!game || game.status !== "playing") return;
-
+    if (game.version !== decidedAt) {
+      scheduleBotTurn(code, 300); // something changed meanwhile: decide again on fresh state
+      return;
+    }
     const state = deserializeState(game.state);
     const actor = state.players[state.turn.playerIdx];
     if (!actor?.isBot || actor.bankrupt) return;
-
-    // Never act twice on the same engine version (protects against tight retry loops).
-    const last = lastActedVersion.get(code) ?? -1;
-    if (last === game.version) return;
     lastActedVersion.set(code, game.version);
-
-    const action: GameAction | null = botChoose(state);
-    if (!action) return;
 
     const result = applyAction({
       state,

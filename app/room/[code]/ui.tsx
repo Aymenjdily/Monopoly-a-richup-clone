@@ -12,6 +12,7 @@ import { CodeTiles } from "@/components/ui/CodeTiles";
 import { RulesSheet } from "@/components/ui/RulesSheet";
 import { SeatList } from "@/components/ui/SeatList";
 import { useGameSocket } from "@/hooks/useGameSocket";
+import type { BotStyle } from "@/lib/engine/bots";
 import { DEFAULT_SETTINGS, type RoomSettings } from "@/lib/engine/settings";
 
 import GameView from "./GameView";
@@ -72,7 +73,7 @@ export default function LobbyClient({ code }: { code: string }) {
   const asHost = isHost;
   const gameStarted = room.status !== "lobby";
 
-  async function addBot() {
+  async function addBot(style: BotStyle) {
     if (!me) return;
     setBusy(true);
     setLocalError(null);
@@ -80,7 +81,7 @@ export default function LobbyClient({ code }: { code: string }) {
       const res = await fetch(`/api/rooms/${code}/bot`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ playerId: me.playerId, secret: me.secret }),
+        body: JSON.stringify({ playerId: me.playerId, secret: me.secret, style }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Could not add bot.");
@@ -119,7 +120,7 @@ export default function LobbyClient({ code }: { code: string }) {
   const host = room.players.find((p) => p.isHost);
   const seats: (Seat | null)[] = Array.from({ length: 6 }, (_, i) => {
     const p = room.players[i];
-    return p ? { id: p.id, name: p.name, color: p.colorToken, isHost: p.isHost, isBot: p.isBot, isMe: me?.playerId === p.id } : null;
+    return p ? { id: p.id, name: p.name, color: p.colorToken, isHost: p.isHost, isBot: p.isBot, botStyle: p.botStyle, isMe: me?.playerId === p.id } : null;
   });
   const canStart = room.players.length >= 2;
 

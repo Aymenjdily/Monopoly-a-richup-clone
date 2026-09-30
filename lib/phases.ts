@@ -23,6 +23,7 @@ export const PHASES: Phase[] = [
   { index: 7, name: "Full loop + polish", status: "done", designGate: true },
   { index: 8, name: "In-game guide", status: "done", designGate: true },
   { index: 9, name: "Restyle: felt table", status: "done", designGate: true },
+  { index: 10, name: "Jev bots + personalities", status: "done", designGate: false },
 ];
 
 export const phasesList: Phase[] = PHASES;

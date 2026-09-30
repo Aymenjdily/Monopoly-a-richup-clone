@@ -6,6 +6,7 @@ import { withRoomLock } from "@/lib/server/botRuntime";
 import { broadcastGame } from "@/lib/server/gameService";
 import { prisma } from "@/lib/prisma";
 import { deserializeState, serializeState } from "@/lib/game/stateCodec";
+import { BOT_STYLES } from "@/lib/engine/bots";
 import { addBot } from "@/lib/engine/lobby";
 
 export const runtime = "nodejs";
@@ -18,7 +19,7 @@ async function handlePOST(
   const normalized = code.toUpperCase();
 
   try {
-    const body = (await request.json()) as { playerId?: unknown; secret?: unknown };
+    const body = (await request.json()) as { playerId?: unknown; secret?: unknown; style?: unknown };
     if (typeof body?.playerId !== "string" || typeof body?.secret !== "string") {
       return NextResponse.json({ error: "playerId and secret are required" }, { status: 400 });
     }
@@ -33,7 +34,9 @@ async function handlePOST(
     }
 
     try {
-      addBot(state, `bot-${randomInt(0x100000000).toString(16)}`);
+      // whitelist the personality; anything else plays balanced
+      const style = BOT_STYLES.find((s) => s === body.style) ?? "balanced";
+      addBot(state, `bot-${randomInt(0x100000000).toString(16)}`, style);
     } catch (error) {
       const message = error instanceof Error ? error.message : "Cannot add bot.";
       const conflict = message.includes("full") || message.includes("lobby");

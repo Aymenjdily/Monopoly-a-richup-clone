@@ -43,6 +43,7 @@ export interface RoomPublicView {
     colorToken: string;
     isHost: boolean;
     isBot: boolean;
+    botStyle?: "cautious" | "balanced" | "aggressive";
     connected: boolean;
     bankrupt: boolean;
     money: number;

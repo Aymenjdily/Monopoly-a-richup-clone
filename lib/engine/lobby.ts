@@ -86,7 +86,7 @@ export function joinLobby(state: GameState, player: LobbyPlayerInput): GameState
 const BOT_NAMES = ["Dice Bot", "Rent Bot", "Rail Bot", "Bandit Bot", "Pawn Bot", "Tiny Bot"];
 
 /** Fills an empty seat with a server-driven bot (names/colors stay deterministic). */
-export function addBot(state: GameState, botId: string): GameState {
+export function addBot(state: GameState, botId: string, style: NonNullable<Player["botStyle"]> = "balanced"): GameState {
   if (state.phase !== "lobby") {
     throw new Error("Bots can be added only in the lobby.");
   }
@@ -98,10 +98,11 @@ export function addBot(state: GameState, botId: string): GameState {
   const pick = BOT_NAMES.find((n) => !used.has(n)) ?? `Bot ${state.players.length}`;
   const bot = makePlayer({ id: botId, name: pick }, nextColor(state), false);
   bot.isBot = true;
+  bot.botStyle = style;
   bot.secret = "";
   state.players.push(bot);
   state.version += 1;
-  logEvent(state, "info", `${bot.name} joined the room (bot).`, { actor: bot.name });
+  logEvent(state, "info", `${bot.name} joined the room (${style} bot).`, { actor: bot.name });
   return state;
 }
 
