@@ -1,0 +1,17 @@
+# Render Blueprint: one long-lived Node server (Next.js + Socket.IO).
+# Vercel cannot host this app: Socket.IO needs a persistent process (AGENTS.md §7, trap 2).
+services:
+  - type: web
+    name: monopoly-richup-clone
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: DATABASE_URL # Neon POOLED connection string
+        sync: false
+      - key: TYPESAFE_API_KEY # optional: Jev bot brain (server-only)
+        sync: false
