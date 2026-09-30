@@ -24,9 +24,9 @@ export function MusicToggle({ active }: { active: boolean }) {
       onClick={() => setMusicOn(!on)}
       aria-pressed={on}
       aria-label={on ? "Turn lobby music off" : "Turn lobby music on"}
-      className="pointer-events-auto flex h-[60px] items-center gap-2 whitespace-nowrap rounded-[14px] border-[3px] border-ink bg-white px-[16px] text-[15px] font-black shadow-[0_4px_0_#1f1b2e] hover:bg-cream max-sm:h-[50px] max-sm:px-3"
+      className="pointer-events-auto flex h-[60px] items-center gap-2 whitespace-nowrap rounded-[14px] border-2 border-line bg-parchment px-[16px] text-[15px] font-extrabold shadow-chip hover:bg-row max-sm:h-[50px] max-sm:px-3"
     >
-      <span className={`grid h-7 w-7 place-items-center rounded-full border-[2.5px] border-ink text-sm ${on ? "bg-mint" : "bg-[#efe6d6]"}`}>
+      <span className={`grid h-7 w-7 place-items-center rounded-full border-[1.5px] border-line text-sm ${on ? "bg-mint" : "bg-chip"}`}>
         {on ? "🎵" : "🔇"}
       </span>
       <span className="max-sm:hidden">Music {on ? "on" : "off"}</span>

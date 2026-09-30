@@ -6,14 +6,42 @@
 import type { BoardSpace } from "@/lib/engine/types";
 
 import { GAP, PX, type TilePlace } from "./layout";
-import { CITY_LANDMARK, CORAL, GROUP_FLAG, INK, LILAC, NEUTRAL_BAND, PAPER, SPACE_ICON, TYPE_TINT, type FlagCode } from "./theme";
+import { BRASS_DARK, CITY_LANDMARK, CORAL, FELT, GROUP_FLAG, INK, LILAC, LINE, MANGO, NEUTRAL_BAND, PAPER, SPACE_ICON, TYPE_TINT, type FlagCode } from "./theme";
 
-export const FONT = '"Segoe UI Black", "Segoe UI", system-ui, sans-serif';
+const FALLBACK_FONT = '"Segoe UI", system-ui, sans-serif';
+/** Canvas font stack. Resolved from the app font (next/font sets --font-outfit) on first use. */
+export let FONT = FALLBACK_FONT;
+
+// Textures painted before the web font loads would keep the fallback face, so painters
+// subscribe to an epoch that bumps once the font is ready and repaint.
+let fontEpoch = 0;
+let fontStarted = false;
+const fontSubs = new Set<() => void>();
+function startFont() {
+  if (fontStarted || typeof document === "undefined") return;
+  fontStarted = true;
+  const family = getComputedStyle(document.documentElement).getPropertyValue("--font-outfit").trim();
+  if (!family) return;
+  FONT = `${family}, ${FALLBACK_FONT}`;
+  Promise.all([700, 800].map((w) => document.fonts.load(`${w} 40px ${family}`)))
+    .catch(() => undefined)
+    .then(() => {
+      fontEpoch += 1;
+      fontSubs.forEach((fn) => fn());
+    });
+}
+export function subscribeFont(cb: () => void): () => void {
+  fontSubs.add(cb);
+  startFont();
+  return () => fontSubs.delete(cb);
+}
+export const getFontEpoch = () => fontEpoch;
 const EMOJI = '"Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
 
 type Ctx = CanvasRenderingContext2D;
 
 export function makeCanvas(w: number, h: number, draw: (ctx: Ctx, w: number, h: number) => void): HTMLCanvasElement {
+  startFont();
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;
@@ -73,7 +101,7 @@ function pill(ctx: Ctx, text: string, cx: number, cy: number, bg: string, align:
   const w = ctx.measureText(text).width + size * 0.9;
   const h = size * 1.45;
   const x = align === "center" ? cx - w / 2 : cx - w;
-  rr(ctx, x, cy - h / 2, w, h, h / 2, bg, INK, 5);
+  rr(ctx, x, cy - h / 2, w, h, h / 2, bg, LINE, 3);
   ctx.fillStyle = color;
   ctx.textAlign = "center";
   ctx.textBaseline = "middle";
@@ -142,15 +170,15 @@ export function drawFlag(ctx: Ctx, code: FlagCode, x: number, y: number, w: numb
       break;
   }
   ctx.restore();
-  rr(ctx, x, y, w, h, 9, null, INK, 5);
+  rr(ctx, x, y, w, h, 9, null, LINE, 3);
 }
 
 function drawChanceMark(ctx: Ctx, x: number, y: number, size: number, fill = CORAL) {
   ctx.font = `900 ${size}px ${FONT}`;
   ctx.textAlign = "left";
   ctx.textBaseline = "top";
-  ctx.lineWidth = size * 0.12;
-  ctx.strokeStyle = INK;
+  ctx.lineWidth = size * 0.05;
+  ctx.strokeStyle = BRASS_DARK;
   ctx.lineJoin = "round";
   ctx.strokeText("?", x, y);
   ctx.fillStyle = fill;
@@ -168,7 +196,7 @@ function drawEmoji(ctx: Ctx, glyph: string, x: number, y: number, size: number, 
 function sub(ctx: Ctx, text: string, x: number, y: number, size: number, align: CanvasTextAlign) {
   ctx.font = `900 ${size}px ${FONT}`;
   setSpacing(ctx, 3);
-  ctx.fillStyle = "#7d7390";
+  ctx.fillStyle = "#7c6a52";
   ctx.textAlign = align;
   ctx.textBaseline = "alphabetic";
   ctx.fillText(text, x, y);
@@ -189,14 +217,14 @@ export function drawTile(space: BoardSpace, P: TilePlace, look: TileLook): HTMLC
     const owner = look.ownerColor;
     const buyable = space.type === "property" || space.type === "railroad" || space.type === "utility";
     const base = buyable ? PAPER : TYPE_TINT[space.type] ?? PAPER;
-    rr(ctx, 5, 5, w - 10, h - 10, 26, owner ? mix(owner, PAPER, 0.16) : base, INK, 10);
+    rr(ctx, 5, 5, w - 10, h - 10, 26, owner ? mix(owner, PAPER, 0.16) : base, LINE, 5);
     if (owner) rr(ctx, 16, 16, w - 32, h - 32, 18, null, mix(owner, PAPER, 0.55), 6);
     if (look.mortgaged) {
       ctx.save();
       ctx.beginPath();
       ctx.roundRect(8, 8, w - 16, h - 16, 22);
       ctx.clip();
-      ctx.strokeStyle = "rgba(31,27,46,.12)";
+      ctx.strokeStyle = "rgba(42,33,24,.12)";
       ctx.lineWidth = 12;
       for (let k = -h; k < w + h; k += 34) {
         ctx.beginPath();
@@ -216,7 +244,7 @@ export function drawTile(space: BoardSpace, P: TilePlace, look: TileLook): HTMLC
     const kind = space.type;
     const priceTxt = look.mortgaged ? "MORTGAGED" : space.price ? `$${space.price}` : "";
     const pillBg = look.mortgaged ? "#fff" : owner ?? "#fff";
-    const pillCol = look.mortgaged ? "#ff4f6a" : pillTextColor(pillBg);
+    const pillCol = look.mortgaged ? CORAL : pillTextColor(pillBg);
     const pillSize = look.mortgaged ? 22 : 33;
 
     // Band on the center-facing edge: neutral by default, owner's color once bought.
@@ -225,7 +253,7 @@ export function drawTile(space: BoardSpace, P: TilePlace, look: TileLook): HTMLC
       : side === "top" ? [18, h - 76, w - 36, 58]
       : side === "left" ? [w - 76, 18, 58, h - 36]
       : [18, 18, 58, h - 36];
-    if (kind === "property" || kind === "utility") rr(ctx, ...band, 16, owner ?? NEUTRAL_BAND, INK, 6);
+    if (kind === "property" || kind === "utility") rr(ctx, ...band, 16, owner ?? NEUTRAL_BAND, LINE, 3);
     if (kind === "railroad") drawTrack(ctx, band, vert, owner ?? NEUTRAL_BAND);
 
     const flag = space.group ? GROUP_FLAG[space.group] : undefined;
@@ -293,7 +321,7 @@ function pillTextColor(bg: string): string {
 
 function drawTrack(ctx: Ctx, band: [number, number, number, number], vert: boolean, color: string) {
   const [bx, by, bw, bh] = band;
-  rr(ctx, bx, by, bw, bh, 16, color, INK, 6);
+  rr(ctx, bx, by, bw, bh, 16, color, LINE, 3);
   ctx.fillStyle = INK;
   if (!vert) {
     for (let x = bx + 16; x < bx + bw - 10; x += 22) ctx.fillRect(x, by + 10, 7, bh - 20);
@@ -326,13 +354,13 @@ function drawCorner(ctx: Ctx, w: number, h: number, space: BoardSpace) {
       ctx.moveTo(160, 55); ctx.lineTo(100, 110); ctx.lineTo(160, 165);
       ctx.stroke();
     };
-    arrow(INK, 50);
-    arrow(CORAL, 28);
+    arrow(BRASS_DARK, 40);
+    arrow(MANGO, 26);
     title("GO", 318, 150);
     sub(ctx, "COLLECT $200", w / 2, 372, 26, "center");
   } else if (space.type === "jail") {
-    rr(ctx, w - 250, 22, 228, 228, 22, "#ffab5e", INK, 7);
-    ctx.fillStyle = "rgba(31,27,46,.18)";
+    rr(ctx, w - 250, 22, 228, 228, 22, "#e9c98a", LINE, 4);
+    ctx.fillStyle = "rgba(42,33,24,.16)";
     ctx.fillRect(w - 244, 190, 216, 50);
     ctx.font = `900 30px ${FONT}`;
     setSpacing(ctx, 4);
@@ -352,47 +380,33 @@ function drawCorner(ctx: Ctx, w: number, h: number, space: BoardSpace) {
   }
 }
 
-/** Board center: dotted field + painted logo. */
+/** Board center: felt plate, dashed brass lines, cream title (G2). */
 export function drawCenter(): HTMLCanvasElement {
   return makeCanvas(2048, 2048, (ctx, w, h) => {
-    rr(ctx, 12, 12, w - 24, h - 24, 90, "#fff3dc");
-    ctx.fillStyle = "rgba(31,27,46,.09)";
-    for (let y = 60; y < h - 40; y += 56)
-      for (let x = 60; x < w - 40; x += 56) {
-        ctx.beginPath();
-        ctx.arc(x, y, 5, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    ctx.setLineDash([34, 26]);
-    rr(ctx, 40, 40, w - 80, h - 80, 70, null, "rgba(31,27,46,.22)", 8);
-    ctx.setLineDash([]);
-    const g = ctx.createRadialGradient(w / 2, 720, 40, w / 2, 720, 780);
-    g.addColorStop(0, "rgba(255,255,255,.95)");
-    g.addColorStop(1, "rgba(255,255,255,0)");
+    rr(ctx, 8, 8, w - 16, h - 16, 48, FELT);
+    const g = ctx.createRadialGradient(w / 2, h * 0.44, 40, w / 2, h * 0.44, 900);
+    g.addColorStop(0, "rgba(120,230,170,0.3)");
+    g.addColorStop(1, "rgba(120,230,170,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
+    rr(ctx, 60, 60, w - 120, h - 120, 36, null, "rgba(253,243,214,0.45)", 6);
+    ctx.setLineDash([4, 22]);
+    ctx.lineCap = "round";
+    rr(ctx, 96, 96, w - 192, h - 192, 28, null, "rgba(253,243,214,0.45)", 8);
+    ctx.setLineDash([]);
 
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
-    ctx.lineJoin = "round";
-    const word = (txt: string, x: number, y: number, fill: string) => {
-      ctx.font = `900 300px ${FONT}`;
-      setSpacing(ctx, -14);
-      ctx.lineWidth = 34;
-      ctx.strokeStyle = INK;
-      ctx.fillStyle = INK;
-      ctx.fillText(txt, x, y + 22);
-      ctx.fillStyle = fill;
-      ctx.strokeText(txt, x, y);
-      ctx.fillText(txt, x, y);
-    };
-    word("Dice", w / 2 - 120, 640, "#fff");
-    word("&", w / 2 + 400, 640, CORAL);
-    word("Deeds", w / 2, 930, "#fff");
-    setSpacing(ctx, 18);
-    ctx.font = `900 58px ${FONT}`;
-    ctx.fillStyle = "#a89fb5";
-    ctx.fillText("GO AROUND THE WORLD", w / 2 + 9, 1070);
+    ctx.font = `800 190px ${FONT}`;
+    setSpacing(ctx, -6);
+    ctx.fillStyle = "rgba(0,0,0,0.35)";
+    ctx.fillText("Dice & Deeds", w / 2, 640 + 12);
+    ctx.fillStyle = "#fdf3d6";
+    ctx.fillText("Dice & Deeds", w / 2, 640);
+    setSpacing(ctx, 14);
+    ctx.font = `700 40px ${FONT}`;
+    ctx.fillStyle = "#a8d9c0";
+    ctx.fillText("GO AROUND THE WORLD", w / 2 + 7, 740);
     setSpacing(ctx, 0);
   });
 }
@@ -400,14 +414,14 @@ export function drawCenter(): HTMLCanvasElement {
 /** Top card of a Chance / Community Chest deck. */
 export function drawDeckTop(kind: "chance" | "chest"): HTMLCanvasElement {
   return makeCanvas(620, 404, (ctx, w, h) => {
-    rr(ctx, 6, 6, w - 12, h - 12, 40, kind === "chance" ? "#ffd23e" : LILAC, INK, 10);
-    rr(ctx, 30, 30, w - 60, h - 60, 26, null, "rgba(31,27,46,.25)", 5);
+    rr(ctx, 6, 6, w - 12, h - 12, 40, kind === "chance" ? MANGO : LILAC, BRASS_DARK, 6);
+    rr(ctx, 30, 30, w - 60, h - 60, 26, null, "rgba(42,33,24,.22)", 4);
     ctx.textAlign = "center";
     ctx.textBaseline = "alphabetic";
     if (kind === "chance") {
       ctx.font = `900 180px ${FONT}`;
-      ctx.lineWidth = 18;
-      ctx.strokeStyle = INK;
+      ctx.lineWidth = 8;
+      ctx.strokeStyle = BRASS_DARK;
       ctx.lineJoin = "round";
       ctx.strokeText("?", w / 2, 250);
       ctx.fillStyle = "#fff";
@@ -428,9 +442,9 @@ export function drawGlow(w = 256, h = 384): HTMLCanvasElement {
   return makeCanvas(w, h, (ctx) => {
     const r = Math.max(w, h) / 2;
     const g = ctx.createRadialGradient(w / 2, h / 2, r * 0.2, w / 2, h / 2, r);
-    g.addColorStop(0, "rgba(255,197,61,1)");
-    g.addColorStop(0.55, "rgba(255,197,61,.85)");
-    g.addColorStop(1, "rgba(255,197,61,0)");
+    g.addColorStop(0, "rgba(255,220,130,1)");
+    g.addColorStop(0.55, "rgba(255,220,130,.8)");
+    g.addColorStop(1, "rgba(255,220,130,0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, w, h);
   });

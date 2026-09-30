@@ -6,22 +6,23 @@
  */
 import { RoundedBox } from "@react-three/drei";
 import { useThree, type ThreeElements } from "@react-three/fiber";
-import { forwardRef, useEffect, useMemo } from "react";
+import { forwardRef, useEffect, useMemo, useSyncExternalStore } from "react";
 import * as THREE from "three";
 
-import { drawDeckTop } from "./textures";
-import { INK } from "./theme";
+import { drawDeckTop, getFontEpoch, subscribeFont } from "./textures";
 
 /** Build a CanvasTexture once per `key`, dispose when it changes/unmounts. */
 export function useCanvasTexture(make: () => HTMLCanvasElement, key: string): THREE.CanvasTexture {
   const gl = useThree((s) => s.gl);
+  // repaint once the web font is ready (first paint may use the fallback face)
+  const fontEpoch = useSyncExternalStore(subscribeFont, getFontEpoch, () => 0);
   const tex = useMemo(() => {
     const t = new THREE.CanvasTexture(make());
     t.colorSpace = THREE.SRGBColorSpace;
     t.anisotropy = gl.capabilities.getMaxAnisotropy();
     return t;
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` captures everything `make` reads
-  }, [key, gl]);
+  }, [key, gl, fontEpoch]);
   useEffect(() => () => tex.dispose(), [tex]);
   return tex;
 }
@@ -33,7 +34,6 @@ const PAWN_PROFILE = [
 ].map(([r, y]) => new THREE.Vector2(r, y));
 const pawnGeo = new THREE.LatheGeometry(PAWN_PROFILE, 40);
 const headGeo = new THREE.SphereGeometry(0.125, 32, 20);
-const outlineMat = new THREE.MeshBasicMaterial({ color: INK, side: THREE.BackSide });
 
 export const PAWN_HEIGHT = 0.68;
 
@@ -52,12 +52,6 @@ export const Pawn = forwardRef<THREE.Group, { color: string; ghost?: boolean } &
         <group scale={1.05}>
           <mesh geometry={pawnGeo} material={mat} castShadow={!ghost} receiveShadow />
           <mesh geometry={headGeo} material={mat} position-y={0.54} castShadow={!ghost} />
-          {!ghost && (
-            <>
-              <mesh geometry={pawnGeo} material={outlineMat} scale={[1.09, 1.03, 1.09]} position-y={-0.006} />
-              <mesh geometry={headGeo} material={outlineMat} scale={1.12} position-y={0.54} />
-            </>
-          )}
         </group>
       </group>
     );
@@ -75,10 +69,10 @@ const roofGeo = (() => {
   g.translate(0, 0, -0.1);
   return g;
 })();
-const houseMat = new THREE.MeshStandardMaterial({ color: "#3fbf7f", roughness: 0.4 });
-const houseRoofMat = new THREE.MeshStandardMaterial({ color: "#2e9c64", roughness: 0.4 });
-const hotelMat = new THREE.MeshStandardMaterial({ color: "#ff6b81", roughness: 0.35 });
-const hotelRoofMat = new THREE.MeshStandardMaterial({ color: "#d9435b", roughness: 0.4 });
+const houseMat = new THREE.MeshStandardMaterial({ color: "#2f9a62", roughness: 0.4 });
+const houseRoofMat = new THREE.MeshStandardMaterial({ color: "#1f7a4b", roughness: 0.4 });
+const hotelMat = new THREE.MeshStandardMaterial({ color: "#c0392b", roughness: 0.35 });
+const hotelRoofMat = new THREE.MeshStandardMaterial({ color: "#962d22", roughness: 0.4 });
 
 export function House(props: ThreeElements["group"]) {
   return (

@@ -58,8 +58,8 @@ export default function LobbyClient({ code }: { code: string }) {
   if (notFound) return <NotFoundCard code={code} />;
   if (!room) {
     return (
-      <main className="relative min-h-screen bg-shader">
-        <div className="relative z-10 grid min-h-screen place-items-center text-xl font-black text-[#a89fb5]">
+      <main className="relative min-h-screen bg-table">
+        <div className="relative z-10 grid min-h-screen place-items-center text-xl font-extrabold text-on-table-muted">
           joining table…
         </div>
       </main>
@@ -124,9 +124,7 @@ export default function LobbyClient({ code }: { code: string }) {
   const canStart = room.players.length >= 2;
 
   return (
-    <main className="relative h-dvh min-h-[640px] overflow-hidden bg-shader">
-      <div className="bg-spotlight" />
-      <div className="grain" />
+    <main className="relative h-dvh min-h-[640px] overflow-hidden bg-table">
 
       {webgl && wide ? (
         <div className="absolute inset-x-0 top-[120px] bottom-[150px] sm:inset-0">
@@ -143,24 +141,24 @@ export default function LobbyClient({ code }: { code: string }) {
           disabled={busy}
           aria-label={seated ? "Leave room" : "Back home"}
           title={seated ? "Leave room (frees your seat)" : "Back home"}
-          className="pointer-events-auto grid h-[50px] w-[50px] flex-none place-items-center rounded-[14px] border-[3px] border-ink bg-white text-xl font-black shadow-[0_4px_0_#1f1b2e]"
+          className="gbtn pointer-events-auto h-[50px] w-[50px] flex-none p-0 text-xl"
         >
           ←
         </button>
         <div>
-          <h1 className="text-[28px] font-black leading-none tracking-[-0.02em] sm:text-[38px]">Waiting room</h1>
-          <p className="mt-1.5 text-sm font-extrabold text-[#a89fb5]">
+          <h1 className="text-[28px] font-extrabold leading-none tracking-[-0.02em] text-on-table [text-shadow:0_3px_0_rgba(0,0,0,0.25)] sm:text-[38px]">Waiting room</h1>
+          <p className="mt-1.5 text-sm font-semibold text-on-table-muted">
             {host ? (
               <>
-                Hosted by <b className="text-ink">{host.name}</b> ·{" "}
+                Hosted by <b className="text-on-table">{host.name}</b> ·{" "}
               </>
             ) : null}
             the lobby updates live
           </p>
         </div>
         <div className="flex-1" />
-        <div className="pointer-events-auto flex items-center gap-3.5 rounded-[22px] border-[3.5px] border-ink bg-white py-2.5 pl-5 pr-3 shadow-[0_6px_0_#1f1b2e] max-sm:w-full max-sm:pl-3">
-          <span className="text-[11px] font-black leading-[1.3] tracking-[0.14em] text-[#a89fb5] max-sm:hidden">
+        <div className="panel pointer-events-auto flex items-center gap-3.5 py-2.5 pl-5 pr-3 max-sm:w-full max-sm:pl-3">
+          <span className="text-[11px] font-extrabold leading-[1.3] tracking-[0.14em] text-muted max-sm:hidden">
             ROOM
             <br />
             CODE
@@ -168,7 +166,7 @@ export default function LobbyClient({ code }: { code: string }) {
           <CodeTiles value={room.code} size="lg" />
           <button
             onClick={copyInvite}
-            className="flex h-[60px] items-center gap-2 whitespace-nowrap rounded-[14px] border-[3px] border-ink bg-mango px-[18px] text-[15px] font-black shadow-[0_4px_0_#1f1b2e] hover:brightness-105 max-sm:px-3"
+            className="gbtn gbtn-gold h-[54px] px-[18px] text-[15px] max-sm:px-3"
           >
             {copied ? "✓" : "⧉"}
             <span className="max-sm:hidden">{copied ? "Copied" : "Copy invite"}</span>
@@ -177,7 +175,7 @@ export default function LobbyClient({ code }: { code: string }) {
         <MusicToggle active />
         <button
           onClick={() => setRulesOpen(true)}
-          className="pointer-events-auto flex h-[60px] items-center gap-2 whitespace-nowrap rounded-[14px] border-[3px] border-ink bg-white px-[18px] text-[15px] font-black shadow-[0_4px_0_#1f1b2e] hover:bg-cream max-sm:h-[50px]"
+          className="gbtn pointer-events-auto h-[54px] px-[18px] text-[15px] max-sm:h-[50px]"
         >
           ⚙️ Room rules
         </button>
@@ -197,19 +195,19 @@ export default function LobbyClient({ code }: { code: string }) {
       {/* dock */}
       <div className="absolute inset-x-4 bottom-6 z-10 mx-auto max-w-[1080px] sm:bottom-10">
         {(socketError || localError) && (
-          <p className="mb-3 text-center text-sm font-bold text-coral">{socketError?.message ?? localError}</p>
+          <p className="mx-auto mb-3 w-fit rounded-full bg-coral px-4 py-1.5 text-center text-sm font-bold text-white shadow-soft">{socketError?.message ?? localError}</p>
         )}
-        <div className="flex flex-col items-stretch gap-4 rounded-[26px] border-[3.5px] border-ink bg-white p-4 shadow-[0_8px_0_#1f1b2e,24px_28px_0_rgba(31,27,46,.08)] sm:flex-row sm:items-center sm:gap-[22px] sm:pl-[26px]">
+        <div className="panel flex flex-col items-stretch gap-4 rounded-[26px] p-4 sm:flex-row sm:items-center sm:gap-[22px] sm:pl-[26px]">
           <div className="flex gap-1.5 max-sm:hidden">
             {seats.map((s, i) => (
-              <i key={i} className="h-3 w-[26px] rounded-md border-[2.5px] border-ink" style={{ background: s?.color ?? "#f1eadc" }} />
+              <i key={i} className="h-3 w-[26px] rounded-md border-[1.5px] border-line" style={{ background: s?.color ?? "#eadfc3" }} />
             ))}
           </div>
           <div className="min-w-0">
-            <b className="block text-[19px] font-black">
+            <b className="block text-[19px] font-extrabold">
               {room.players.length} of 6 seats filled
             </b>
-            <span className="text-[13px] font-extrabold text-[#a89fb5]">
+            <span className="text-[13px] font-semibold text-muted">
               {copied ? "Invite link copied — share it!" : "Friends open the site and enter the code — no account needed."}
             </span>
           </div>
@@ -219,16 +217,16 @@ export default function LobbyClient({ code }: { code: string }) {
               <button
                 onClick={start}
                 disabled={busy || !canStart}
-                className="flex w-full items-center justify-center gap-3.5 whitespace-nowrap rounded-[18px] border-[3.5px] border-ink bg-ink px-[26px] py-[18px] text-lg font-black tracking-[0.02em] text-white sm:text-[22px] shadow-[0_6px_0_rgba(31,27,46,.3)] disabled:opacity-80"
+                className="gbtn gbtn-gold h-[62px] w-full gap-3.5 px-[26px] text-lg sm:text-[20px]"
               >
                 START THE GAME
-                <i className="rounded-full bg-mint px-[11px] py-[5px] text-[13px] not-italic tracking-[0.1em] text-ink">
+                <i className="rounded-full bg-[#3d2a00] px-[11px] py-[5px] text-[12px] not-italic tracking-[0.1em] text-[#ffdf7a] [text-shadow:none]">
                   {canStart ? "READY" : "2+ NEEDED"}
                 </i>
                 <span className="opacity-85">→</span>
               </button>
             ) : seated ? (
-              <div className="rounded-[18px] border-[3px] border-dashed border-ink/40 px-6 py-[18px] text-center text-lg font-black text-[#a89fb5]">
+              <div className="rounded-[18px] border-2 border-dashed border-line px-6 py-[18px] text-center text-lg font-extrabold text-muted">
                 You have a seat — waiting for the host to start…
               </div>
             ) : (
@@ -239,12 +237,12 @@ export default function LobbyClient({ code }: { code: string }) {
                   onKeyDown={(e) => e.key === "Enter" && join()}
                   placeholder="Your nickname"
                   maxLength={20}
-                  className="min-w-0 flex-1 rounded-[14px] border-[3px] border-ink bg-white px-4 py-3 text-lg font-extrabold placeholder:text-[#c9c2d4] focus:outline-none sm:w-[220px]"
+                  className="min-w-0 flex-1 rounded-[14px] border-2 border-line bg-row px-4 py-3 text-lg font-bold placeholder:text-muted/60 focus:border-brass focus:outline-none sm:w-[220px]"
                 />
                 <button
                   onClick={join}
                   disabled={busy || room.players.length >= 6}
-                  className="whitespace-nowrap rounded-[14px] border-[3px] border-ink bg-mint px-6 py-3 text-lg font-black text-ink shadow-[0_5px_0_#1f1b2e] hover:brightness-105 disabled:opacity-60"
+                  className="gbtn gbtn-buy"
                 >
                   Take a seat →
                 </button>
@@ -370,15 +368,15 @@ export default function LobbyClient({ code }: { code: string }) {
 
 function NotFoundCard({ code }: { code: string }) {
   return (
-    <main className="relative flex min-h-screen items-center justify-center bg-shader">
-      <div className="relative z-10 rounded-[26px] border-[3.5px] border-ink bg-white p-10 text-center [box-shadow:0_9px_0_#1f1b2e,30px_34px_0_rgba(31,27,46,0.10)]">
-        <p className="text-2xl font-black">Room {code} not found</p>
-        <p className="mt-2 text-sm font-bold text-[#a89fb5]">
+    <main className="relative flex min-h-screen items-center justify-center bg-table">
+      <div className="relative z-10 rounded-[26px] border-2 border-line bg-parchment p-10 text-center shadow-panel">
+        <p className="text-2xl font-extrabold">Room {code} not found</p>
+        <p className="mt-2 text-sm font-bold text-muted">
           Check the code or ask your host for a fresh one.
         </p>
         <Link
           href="/"
-          className="mt-6 inline-block rounded-[16px] border-[3.5px] border-ink bg-coral px-6 py-3 text-lg font-black text-white shadow-[0_5px_0_#1f1b2e]"
+          className="mt-6 inline-block rounded-[16px] border-2 border-line bg-coral px-6 py-3 text-lg font-extrabold text-white shadow-chip"
         >
           ← Back home
         </Link>

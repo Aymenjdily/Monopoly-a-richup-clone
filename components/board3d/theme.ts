@@ -5,17 +5,23 @@
  */
 import type { GroupId } from "@/lib/engine/board";
 
-export const INK = "#1f1b2e";
-export const PAPER = "#fffaf0";
-export const CORAL = "#ff6b81";
-export const MANGO = "#ffc53d";
-export const LILAC = "#c9b8ff";
+// G2 "felt table" palette (design/phase-9-restyle/variant-G2-*).
+export const INK = "#2a2118";
+export const PAPER = "#fdf9ef";
+export const CORAL = "#c0392b";
+export const MANGO = "#d9a441";
+export const LILAC = "#eadfc3";
+/** Thin tan outline used instead of heavy ink strokes. */
+export const LINE = "#cdbd96";
+export const BRASS_DARK = "#8a6420";
+export const WALNUT = "#4a2c1a";
+export const FELT = "#1b6147";
 
 /**
  * Every buyable tile starts neutral; once bought, its band/face take the owner's token
  * color. Sets are recognised by their country flag instead of a set color.
  */
-export const NEUTRAL_BAND = "#e6ded0";
+export const NEUTRAL_BAND = "#e9dfc6";
 
 /** Landmark art per city (space index → emoji), drawn large on the tile face. */
 export const CITY_LANDMARK: Record<number, string> = {
@@ -70,12 +76,12 @@ export const SPACE_ICON: Record<number, string> = {
 
 /** Tile face tints per space type. */
 export const TYPE_TINT: Record<string, string> = {
-  chance: "#fff1c4",
-  chest: "#eee8ff",
-  tax: "#ffe3e8",
-  utility: "#e3f8ec",
-  go: "#dcf6e8",
-  jail: "#ffe9cf",
-  parking: "#ece6ff",
-  gotojail: "#ffdbe1",
+  chance: "#fbefc9",
+  chest: "#f3ead2",
+  tax: "#f6e3d6",
+  utility: "#eaf0dc",
+  go: "#e3efd9",
+  jail: "#f3e2c6",
+  parking: "#efe8d6",
+  gotojail: "#f3dcd2",
 };

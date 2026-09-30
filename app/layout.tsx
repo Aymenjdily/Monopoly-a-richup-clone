@@ -1,11 +1,12 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
 import { PHASES, phasesList } from "@/lib/phases";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
 const geistMono = Geist_Mono({
@@ -15,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "3D Monopoly Online",
-    template: "%s — 3D Monopoly Online",
+    default: "Dice & Deeds",
+    template: "%s — Dice & Deeds",
   },
   description:
     "Online multiplayer Monopoly-style board game with a 3D board. Server-authoritative rules, real-time rooms.",
@@ -26,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${outfit.variable} ${geistMono.variable} h-full font-sans antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>
     </html>

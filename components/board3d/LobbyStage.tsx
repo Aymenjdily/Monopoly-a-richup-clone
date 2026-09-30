@@ -88,13 +88,13 @@ function Stage() {
   return (
     <group>
       <RoundedBox args={[13.9, 0.34, 3.4]} radius={0.16} smoothness={6} position-y={-0.25} castShadow receiveShadow>
-        <meshStandardMaterial color="#2a2440" roughness={0.5} />
+        <meshStandardMaterial color="#4a2c1a" roughness={0.55} />
       </RoundedBox>
       <RoundedBox args={[13.96, 0.07, 3.46]} radius={0.03} smoothness={4} position-y={-0.19}>
-        <meshStandardMaterial color="#ff6b81" roughness={0.4} />
+        <meshStandardMaterial color="#d9a441" roughness={0.3} metalness={0.6} />
       </RoundedBox>
       <RoundedBox args={[13.7, 0.14, 3.2]} radius={0.06} smoothness={6} position-y={-0.07} receiveShadow>
-        <meshStandardMaterial color="#fff6e4" roughness={0.8} />
+        <meshStandardMaterial color="#1b6147" roughness={0.9} />
       </RoundedBox>
     </group>
   );
@@ -103,17 +103,17 @@ function Stage() {
 function podiumTop(color: string | undefined, n: number) {
   return makeCanvas(512, 512, (ctx, w, h) => {
     if (!color) {
-      rr(ctx, 10, 10, w - 20, h - 20, 70, "rgba(255,250,240,.9)");
+      rr(ctx, 10, 10, w - 20, h - 20, 70, "rgba(253,243,214,.16)");
       ctx.setLineDash([34, 22]);
-      rr(ctx, 26, 26, w - 52, h - 52, 58, null, "rgba(31,27,46,.45)", 10);
+      rr(ctx, 26, 26, w - 52, h - 52, 58, null, "rgba(253,243,214,.6)", 8);
       ctx.setLineDash([]);
-      ctx.fillStyle = "rgba(31,27,46,.28)";
+      ctx.fillStyle = "rgba(253,243,214,.55)";
       ctx.fillRect(w / 2 - 12, h / 2 - 70, 24, 140);
       ctx.fillRect(w / 2 - 70, h / 2 - 12, 140, 24);
       return;
     }
-    rr(ctx, 10, 10, w - 20, h - 20, 70, "#fffaf0", INK, 14);
-    rr(ctx, 40, h - 128, w - 80, 86, 30, color, INK, 12);
+    rr(ctx, 10, 10, w - 20, h - 20, 70, "#fdf9ef", "#cdbd96", 8);
+    rr(ctx, 40, h - 128, w - 80, 86, 30, color, "#cdbd96", 6);
     ctx.font = `900 70px ${FONT}`;
     ctx.fillStyle = INK;
     ctx.textAlign = "center";
@@ -136,9 +136,9 @@ function Podium({ index, seat }: { index: number; seat: Seat | null }) {
     <group position={[x, 0, 0]}>
       <RoundedBox args={[1.6, 0.46, 1.6]} radius={0.12} smoothness={4} position-y={0.23} castShadow={!empty} receiveShadow>
         {empty ? (
-          <meshStandardMaterial color="#efe6d4" roughness={0.8} transparent opacity={0.55} />
+          <meshStandardMaterial color="#2a7d5d" roughness={0.9} transparent opacity={0.7} />
         ) : (
-          <meshStandardMaterial color="#2a2440" roughness={0.45} />
+          <meshStandardMaterial color="#4a2c1a" roughness={0.5} />
         )}
       </RoundedBox>
       {seat && (
@@ -187,20 +187,20 @@ function SeatLabel({ seat, canManage, busy, onAddBot, onRemoveBot }: { seat: Sea
     <div className="flex -translate-x-1/2 flex-col items-center gap-[7px] pt-5">
       {seat ? (
         <>
-          <div className="flex items-center gap-2 whitespace-nowrap rounded-full border-[3px] border-ink bg-white px-[15px] py-[7px] text-lg font-black shadow-[0_4px_0_#1f1b2e]">
-            <span className="h-3 w-3 rounded-full border-[2.5px] border-ink" style={{ background: seat.color }} />
+          <div className="flex items-center gap-2 whitespace-nowrap rounded-full border-2 border-line bg-parchment px-[15px] py-[7px] text-lg font-extrabold shadow-chip">
+            <span className="h-3 w-3 rounded-full border-[1.5px] border-line" style={{ background: seat.color }} />
             {seat.name}
-            {seat.isMe && <span className="text-[15px] font-extrabold text-[#b6adc4]">(you)</span>}
+            {seat.isMe && <span className="text-[15px] font-extrabold text-muted">(you)</span>}
           </div>
           <div className="flex gap-1.5">
-            {seat.isHost && <Badge className="bg-mango">HOST ★</Badge>}
+            {seat.isHost && <Badge className="bg-brass">HOST ★</Badge>}
             {seat.isBot && <Badge className="bg-lilac">BOT</Badge>}
             {seat.isBot && canManage && (
               <button
                 onClick={() => onRemoveBot(seat.id)}
                 disabled={busy}
                 title="Remove bot"
-                className="rounded-full border-[2.5px] border-ink bg-coral px-2.5 py-0.5 text-[10.5px] font-black text-white disabled:opacity-60"
+                className="rounded-full border-[1.5px] border-line bg-coral px-2.5 py-0.5 text-[10.5px] font-extrabold text-white disabled:opacity-60"
               >
                 ✕
               </button>
@@ -212,14 +212,14 @@ function SeatLabel({ seat, canManage, busy, onAddBot, onRemoveBot }: { seat: Sea
           <button
             onClick={onAddBot}
             disabled={busy}
-            className="whitespace-nowrap rounded-full border-[3px] border-dashed border-ink bg-cream px-4 py-[7px] text-[15px] font-black hover:bg-white disabled:opacity-60"
+            className="whitespace-nowrap rounded-full border-2 border-dashed border-line bg-row px-4 py-[7px] text-[15px] font-extrabold hover:bg-parchment disabled:opacity-60"
           >
             <b className="text-coral">＋</b> Add bot
           </button>
-          <small className="whitespace-nowrap text-xs font-extrabold text-[#a89fb5]">or invite a friend</small>
+          <small className="whitespace-nowrap text-xs font-semibold text-on-table-muted">or invite a friend</small>
         </>
       ) : (
-        <small className="whitespace-nowrap rounded-full border-[3px] border-dashed border-ink/40 px-4 py-[7px] text-[14px] font-black text-[#a89fb5]">
+        <small className="whitespace-nowrap rounded-full border-2 border-dashed border-line/60 px-4 py-[7px] text-[14px] font-bold text-on-table-muted">
           Open seat
         </small>
       )}
@@ -229,7 +229,7 @@ function SeatLabel({ seat, canManage, busy, onAddBot, onRemoveBot }: { seat: Sea
 
 function Badge({ children, className }: { children: string; className: string }) {
   return (
-    <span className={`whitespace-nowrap rounded-full border-[2.5px] border-ink px-[9px] py-[3px] text-[10.5px] font-black tracking-[0.1em] ${className}`}>
+    <span className={`whitespace-nowrap rounded-full border-[1.5px] border-line px-[9px] py-[3px] text-[10.5px] font-extrabold tracking-[0.1em] ${className}`}>
       {children}
     </span>
   );

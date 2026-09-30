@@ -6,7 +6,7 @@
  */
 import { useState } from "react";
 
-const BANDS = ["#ff6f6f", "#ffab5e", "#ffd23e", "#5fd99a", "#8fd3f5", "#c9b8ff"];
+const SLOTS = [0, 1, 2, 3, 4, 5];
 
 export function CodeTiles({
   value,
@@ -25,17 +25,16 @@ export function CodeTiles({
 
   return (
     <div className={`relative flex gap-[7px] ${size === "md" ? "flex-1" : ""}`}>
-      {BANDS.map((band, i) => {
+      {SLOTS.map((i) => {
         const ch = chars[i];
         const current = focused && i === Math.min(chars.length, 5);
         return (
           <div
             key={i}
-            className={`relative grid place-items-center overflow-hidden rounded-[12px] border-[3px] border-ink pt-2 font-black shadow-[0_3px_0_#1f1b2e] ${tile} ${
-              current ? "bg-white shadow-[0_3px_0_#1f1b2e,0_0_0_4px_rgba(255,197,61,.55)]" : "bg-[#fffaf0]"
-            } ${ch ? "" : "text-[#d9d2e2]"}`}
+            className={`relative grid place-items-center overflow-hidden rounded-[12px] border-2 font-extrabold ${tile} ${
+              current ? "border-brass bg-parchment shadow-[0_0_0_4px_rgba(217,164,65,0.35)]" : "border-line bg-row"
+            } ${ch ? "" : "text-muted"}`}
           >
-            <span className="absolute inset-x-0 top-0 h-[10px] border-b-[2.5px] border-ink" style={{ background: band }} />
             {ch ?? "·"}
           </div>
         );

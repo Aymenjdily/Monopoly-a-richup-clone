@@ -33,7 +33,7 @@ export type HomeSceneLayout = "hero" | "backdrop";
 
 const VIEWS: Record<HomeSceneLayout, { pos: [number, number, number]; look: [number, number, number] }> = {
   // board on the right, UI on the left (desktop reference)
-  hero: { pos: [-1.0, 10.8, 15.2], look: [-4.3, -0.6, 1.2] },
+  hero: { pos: [-1.4, 14.2, 19.2], look: [-5.6, -0.6, 1.4] },
   // centered, farther — sits behind the card on small screens
   backdrop: { pos: [1.5, 24, 20], look: [0, -0.5, 0.5] },
 };
@@ -45,8 +45,8 @@ export default function HomeScene({ layout = "hero" }: { layout?: HomeSceneLayou
       <SceneBase />
       <BoardModel ownership={DEMO_OWNERSHIP} colors={COLORS} activeTile={24} />
       <Tokens players={DEMO_PLAYERS} activePlayerId="a" activeTile={24} myId="a" />
-      <Die color="#ff6b81" pip="#ffffff" position={[-0.6, 2.1, 3.2]} rotation={[0.55, 0.7, 0.35]} />
-      <Die color="#fffaf0" pip="#1f1b2e" position={[0.9, 1.35, 2.6]} rotation={[-0.4, -0.5, 0.8]} />
+      <Die color="#c0392b" pip="#ffffff" position={[-0.6, 2.1, 3.2]} rotation={[0.55, 0.7, 0.35]} />
+      <Die color="#fdf9ef" pip="#2a2118" position={[0.9, 1.35, 2.6]} rotation={[-0.4, -0.5, 0.8]} />
     </Canvas>
   );
 }

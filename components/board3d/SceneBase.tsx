@@ -25,7 +25,7 @@ export function SceneBase({ groundY = -0.62, shadowSize = 10, envIntensity = 0.5
 
   return (
     <>
-      <hemisphereLight args={["#fff6e6", "#c9b8ff", 0.9]} />
+      <hemisphereLight args={["#fff4dc", "#2f6f55", 0.85]} />
       <directionalLight
         color="#fff1dc"
         intensity={2.4}
@@ -37,10 +37,10 @@ export function SceneBase({ groundY = -0.62, shadowSize = 10, envIntensity = 0.5
       >
         <orthographicCamera attach="shadow-camera" args={[-shadowSize, shadowSize, shadowSize, -shadowSize, 1, 40]} />
       </directionalLight>
-      <directionalLight color="#ffd6de" intensity={0.6} position={[8, 6, -8]} />
+      <directionalLight color="#ffd98a" intensity={0.7} position={[8, 6, -8]} />
       <mesh rotation-x={-Math.PI / 2} position-y={groundY} receiveShadow>
         <planeGeometry args={[80, 80]} />
-        <shadowMaterial color="#3a2a4a" opacity={0.22} transparent />
+        <shadowMaterial color="#04170f" opacity={0.42} transparent />
       </mesh>
     </>
   );

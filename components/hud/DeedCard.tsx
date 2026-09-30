@@ -1,17 +1,18 @@
 "use client";
 
 /**
- * Property deed card (F3). Opens for the pending buy (Buy / Decline) or when a tile is
+ * Property deed card (G2): docked on desktop, a modal on small screens. Opens for the pending buy (Buy / Decline) or when a tile is
  * clicked (details only). All numbers come from the BOARD config + ownership — display
  * data only; the server still decides every action.
  */
 import { useEffect } from "react";
 
 import { CITY_LANDMARK, GROUP_FLAG, SPACE_ICON } from "@/components/board3d/theme";
+import { buyAdvice } from "@/lib/engine/advisor";
 import { BOARD } from "@/lib/engine/board";
 import type { ClientGameState } from "@/lib/shared/events";
 
-import { Flag, SET_NAME } from "./bits";
+import { Coins, Flag, SET_NAME } from "./bits";
 import { formatMoney } from "./history";
 
 export function DeedCard({
@@ -75,69 +76,80 @@ export function DeedCard({
       })
     : [];
 
+  // rent grid cells (short labels, as on the G2 card)
+  const SHORT: Record<string, string> = {
+    Rent: "RENT", "With 1 house": "1 HOUSE", "With 2 houses": "2 HOUSES", "With 3 houses": "3 HOUSES", "With 4 houses": "4 HOUSES", "With a hotel": "HOTEL",
+    "Own 1 railway": "1 RAILWAY", "Own 2 railways": "2 RAILWAYS", "Own 3 railways": "3 RAILWAYS", "Own 4 railways": "ALL 4", "Own 1 utility": "1 UTILITY", "Own both": "BOTH",
+  };
+  const cells = rows.filter(([label]) => label !== "With 4 houses").map(([label, v]) => [SHORT[label] ?? "FULL SET", v] as const);
+  const tip = canDecide && me ? buyAdvice(state as never, me as never, index, price, (g) => SET_NAME[g] ?? g) : null;
+
   return (
-    <div className="pointer-events-auto fixed inset-0 z-40 grid place-items-center p-3" role="dialog" aria-modal="true" aria-label={`${space.name} deed`}>
-      <button aria-label="Close" className="absolute inset-0 cursor-default bg-ink/20" onClick={onClose} />
-      <div className="relative w-full max-w-[380px] overflow-hidden rounded-[26px] border-[3px] border-ink bg-white shadow-[0_8px_0_#1f1b2e,22px_26px_0_rgba(31,27,46,.12)]">
-        <div className="flex items-center gap-3 border-b-[3px] border-ink px-[18px] py-3.5" style={{ background: owner && !own?.mortgaged ? `${owner.colorToken}33` : "#e6ded0" }}>
-          <div className="text-[44px] leading-none">{art}</div>
-          <div className="min-w-0">
-            <div className="text-[12px] font-black tracking-[0.14em] text-[#6f6580]">{status}</div>
-            <div className="truncate text-[30px] font-black leading-none">{space.name}</div>
+    <div
+      className="pointer-events-auto fixed inset-0 z-40 grid place-items-center p-3 lg:static lg:z-auto lg:block lg:p-0"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${space.name} deed`}
+    >
+      <button aria-label="Close" className="absolute inset-0 cursor-default bg-black/40 lg:hidden" onClick={onClose} />
+      <div className="panel relative w-full max-w-[340px] overflow-hidden lg:max-w-none">
+        <div className="flex items-center gap-3 border-b-2 border-line p-3.5" style={{ background: owner && !own?.mortgaged ? `${owner.colorToken}26` : "var(--row)" }}>
+          <div className="grid h-14 w-14 flex-none place-items-center rounded-2xl bg-chip text-[32px] leading-none shadow-[inset_0_-3px_0_rgba(0,0,0,0.12)]">{art}</div>
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[10.5px] font-bold tracking-[0.12em] text-muted">{status}</div>
+            <div className="truncate text-2xl font-extrabold leading-tight tracking-[-0.02em]">{space.name}</div>
           </div>
-          <div className="ml-auto flex flex-none items-center gap-2">
-            {flag && <Flag code={flag} />}
-            {!canDecide && (
-              <button onClick={onClose} aria-label="Close" className="grid h-9 w-9 place-items-center rounded-[10px] border-[2.5px] border-ink bg-white font-black shadow-[0_2px_0_#1f1b2e]">
-                ✕
-              </button>
-            )}
-          </div>
-        </div>
-        <div className="px-[18px] pb-4 pt-3">
-          {rows.length > 0 ? (
-            rows.map(([label, v], i) => (
-              <div key={label} className={`flex justify-between border-b-2 border-dashed border-[#eee5d6] py-[5px] text-sm font-extrabold ${i === 0 ? "text-ink" : "text-[#6f6580]"}`}>
-                <span>{label}</span>
-                <b className="text-ink">{typeof v === "number" ? formatMoney(v) : v}</b>
-              </div>
-            ))
-          ) : (
-            <p className="py-3 text-sm font-bold text-[#6f6580]">{space.effect?.amount ? `Pay ${formatMoney(space.effect.amount)} when you land here.` : "A special space — nothing to buy here."}</p>
-          )}
-          {buyable && (
-            <div className="mt-2 flex flex-wrap justify-between gap-x-3 text-xs font-extrabold text-[#8a809b]">
-              {space.houseCost ? <span>House {formatMoney(space.houseCost)} each</span> : <span>Price {formatMoney(price)}</span>}
-              {space.mortgageValue ? <span>Mortgage {formatMoney(space.mortgageValue)}</span> : null}
-              {setMates.length > 0 && <span className="w-full truncate pt-1">{setMates.join(" · ")}</span>}
-            </div>
-          )}
-          {canDecide && me && (
-            <>
-              <div className="mt-3.5 flex gap-2.5">
-                <button
-                  onClick={onBuy}
-                  disabled={busy || me.money < price}
-                  className="flex-1 rounded-[15px] border-[3px] border-ink bg-mint py-[11px] text-base font-black shadow-[0_4px_0_#1f1b2e] active:translate-y-[2px] active:shadow-[0_2px_0_#1f1b2e] disabled:opacity-50"
-                >
-                  Buy · {formatMoney(price)}
-                </button>
-                <button
-                  onClick={onDecline}
-                  disabled={busy}
-                  className="rounded-[15px] border-[3px] border-ink bg-white px-[18px] py-[11px] text-base font-black shadow-[0_4px_0_#1f1b2e] disabled:opacity-50"
-                >
-                  Decline
-                </button>
-              </div>
-              <div className="mt-2.5 text-center text-xs font-extrabold text-[#8a809b]">
-                {me.money >= price
-                  ? `You have ${formatMoney(me.money)} · after buying ${formatMoney(me.money - price)}`
-                  : `You have ${formatMoney(me.money)} — not enough to buy`}
-              </div>
-            </>
+          {flag && <Flag code={flag} w={34} />}
+          {!canDecide && (
+            <button onClick={onClose} aria-label="Close" className="grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-chip text-sm font-extrabold shadow-chip">
+              ✕
+            </button>
           )}
         </div>
+
+        {cells.length > 0 ? (
+          <div className="grid grid-cols-3 gap-1.5 px-3.5 pt-2.5">
+            {cells.map(([label, v]) => (
+              <div key={label} className="rounded-xl bg-row px-1 py-1.5 text-center">
+                <span className="block text-[10px] font-bold tracking-[0.06em] text-muted">{label}</span>
+                <b className="text-[15px] font-extrabold">{typeof v === "number" ? formatMoney(v) : v}</b>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="px-3.5 pt-3 text-sm font-semibold text-muted">
+            {space.effect?.amount ? `Pay ${formatMoney(space.effect.amount)} when you land here.` : "A special space — nothing to buy here."}
+          </p>
+        )}
+
+        {buyable && (
+          <div className="flex flex-wrap gap-x-3 px-3.5 pt-2 text-[11.5px] font-semibold text-muted">
+            <span>Price {formatMoney(price)}</span>
+            {space.houseCost ? <span>House {formatMoney(space.houseCost)}</span> : null}
+            {space.rentLadder ? <span>4 houses {formatMoney(space.rentLadder[4])}</span> : null}
+            {space.mortgageValue ? <span>Mortgage {formatMoney(space.mortgageValue)}</span> : null}
+            {setMates.length > 0 && <span className="w-full truncate">{setMates.join(" · ")}</span>}
+          </div>
+        )}
+
+        {tip && (
+          <div className="mx-3.5 mt-2.5 rounded-xl bg-tip px-2.5 py-2 text-[12.5px] font-semibold">
+            💡 <b className="font-extrabold">{tip.tag?.label ? tip.tag.label.charAt(0) + tip.tag.label.slice(1).toLowerCase() : "Tip"}</b> — {tip.detail}
+          </div>
+        )}
+
+        {canDecide && me ? (
+          <div className="flex gap-2.5 px-3.5 pb-[18px] pt-3">
+            <button onClick={onBuy} disabled={busy || me.money < price} className="gbtn gbtn-buy flex-1">
+              BUY <Coins amount={price} />
+            </button>
+            <button onClick={onDecline} disabled={busy} className="gbtn">
+              PASS
+            </button>
+          </div>
+        ) : (
+          <div className="pb-3.5" />
+        )}
       </div>
     </div>
   );

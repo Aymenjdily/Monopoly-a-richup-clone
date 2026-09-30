@@ -34,20 +34,41 @@ export function Flag({ code, w = 42 }: { code: FlagCode; w?: number }) {
       viewBox="0 0 30 20"
       width={w}
       height={(w * 2) / 3}
-      className="block rounded-[5px] border-[2.5px] border-ink"
+      className="block rounded-[5px] border-2 border-line"
       dangerouslySetInnerHTML={{ __html: FLAGS[code] }}
     />
   );
 }
 
-export function PawnBadge({ color, size = 34 }: { color: string; size?: number }) {
+/** Round player token: glossy disc in the player's color with their initial (🤖 for bots). */
+export function Avatar({ color, name, bot = false, size = 40 }: { color: string; name: string; bot?: boolean; size?: number }) {
   return (
-    <span className="grid flex-none place-items-center rounded-[11px] border-[2.5px] border-ink" style={{ background: color, width: size, height: size }}>
-      <svg width="16" height="20" viewBox="0 0 16 20" aria-hidden>
-        <circle cx="8" cy="5" r="3.6" fill="#fff" stroke="#1f1b2e" strokeWidth="1.8" />
-        <path d="M4.5 18 C5 13 6.3 11 6.5 9 L9.5 9 C9.7 11 11 13 11.5 18 Z" fill="#fff" stroke="#1f1b2e" strokeWidth="1.8" strokeLinejoin="round" />
-        <rect x="2.5" y="16.6" width="11" height="2.6" rx="1.3" fill="#fff" stroke="#1f1b2e" strokeWidth="1.6" />
-      </svg>
+    <span
+      className="grid flex-none place-items-center rounded-full border-[2.5px] border-white font-extrabold text-white shadow-[0_2px_0_rgba(0,0,0,0.25)] [text-shadow:0_1px_0_rgba(0,0,0,0.35)]"
+      style={{
+        width: size,
+        height: size,
+        fontSize: size * 0.42,
+        background: `radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), transparent 45%), ${color}`,
+      }}
+      aria-hidden
+    >
+      {bot ? "🤖" : name.trim().charAt(0).toUpperCase() || "?"}
+    </span>
+  );
+}
+
+/** Small square swatch version (lists). */
+export function PawnBadge({ color, size = 34 }: { color: string; size?: number }) {
+  return <Avatar color={color} name="" size={size} />;
+}
+
+/** Money with the gold coin in front. */
+export function Coins({ amount, className = "" }: { amount: number; className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-[0.3em] whitespace-nowrap ${className}`}>
+      <i className="coin" />
+      {amount.toLocaleString("en-US")}
     </span>
   );
 }
@@ -57,33 +78,41 @@ const PIPS: Record<number, [number, number][]> = {
   5: [[1, 1], [1, 3], [2, 2], [3, 1], [3, 3]], 6: [[1, 1], [1, 3], [2, 1], [2, 3], [3, 1], [3, 3]],
 };
 
-export function DieFace({ value, coral = false }: { value: number; coral?: boolean }) {
+export function DieFace({ value }: { value: number; coral?: boolean }) {
   return (
     <span
-      className={`grid h-[38px] w-[38px] grid-cols-3 grid-rows-3 rounded-[10px] border-[3px] border-ink p-[5px] shadow-[0_3px_0_#1f1b2e] ${coral ? "bg-coral" : "bg-white"}`}
+      className="grid h-10 w-10 grid-cols-3 grid-rows-3 rounded-[10px] bg-[linear-gradient(180deg,#fff,#efe9da)] p-[7px] shadow-[0_3px_0_#b9ad8e]"
       aria-label={`die ${value}`}
     >
       {(PIPS[value] ?? []).map(([r, c], i) => (
-        <i key={i} className={`h-1.5 w-1.5 place-self-center rounded-full ${coral ? "bg-white" : "bg-ink"}`} style={{ gridArea: `${r}/${c}` }} />
+        <i key={i} className="h-[7px] w-[7px] place-self-center rounded-full bg-ink" style={{ gridArea: `${r}/${c}` }} />
       ))}
     </span>
   );
 }
 
+/** Two dice sitting in a felt tray. */
+export function DiceTray({ dice }: { dice: [number, number] }) {
+  return (
+    <span className="flex gap-2 rounded-2xl bg-[#14503b] px-2.5 py-2 shadow-[inset_0_3px_8px_rgba(0,0,0,0.35)]">
+      <DieFace value={dice[0]} />
+      <DieFace value={dice[1]} />
+    </span>
+  );
+}
+
 const TONE: Record<AmountTone, string> = {
-  plus: "bg-mint",
-  minus: "bg-[#ffd0d8]",
-  neutral: "bg-white",
-  pot: "bg-lilac",
+  plus: "bg-[#d8f7e3] text-[#12713a]",
+  minus: "bg-[#ffe0e0] text-[#b02a2a]",
+  neutral: "bg-chip text-ink",
+  pot: "bg-[#efe3ff] text-[#5b3aa6]",
 };
 
 export function AmountPill({ amount, tone }: { amount: number; tone: AmountTone }) {
   const label = tone === "pot" ? `pot +$${Math.abs(amount)}` : tone === "plus" ? `+${formatMoney(amount)}` : formatMoney(amount);
-  return (
-    <span className={`ml-auto flex-none whitespace-nowrap rounded-full border-2 border-ink px-2 py-px text-[12.5px] font-black ${TONE[tone]}`}>{label}</span>
-  );
+  return <span className={`ml-auto flex-none whitespace-nowrap rounded-full px-[9px] py-0.5 text-[13px] font-extrabold ${TONE[tone]}`}>{label}</span>;
 }
 
 export function Tag({ children, className }: { children: string; className: string }) {
-  return <span className={`rounded-full border-2 border-ink px-1.5 text-[9.5px] font-black tracking-[0.08em] ${className}`}>{children}</span>;
+  return <span className={`rounded-full px-[7px] py-0.5 text-[10px] font-extrabold tracking-[0.08em] ${className}`}>{children}</span>;
 }

@@ -16,8 +16,8 @@ const TONE: Record<AdviceTone, string> = {
   great: "bg-mint",
   good: "bg-mint",
   info: "bg-lilac",
-  warn: "bg-mango",
-  bad: "bg-[#ffd0d8]",
+  warn: "bg-brass",
+  bad: "bg-[#ffe0e0] text-[#b02a2a]",
 };
 
 type Send = (action: { type: string; spaceIndex?: number }) => void;
@@ -42,7 +42,7 @@ export function GuidePanel({ advice, busy, send }: { advice: Advice; busy: boole
           <section key={kind}>
             <Heading>{title}</Heading>
             {items.length === 0 ? (
-              <p className="text-[12.5px] font-bold text-[#6f6580]">✅ All clear — no big rents within one roll.</p>
+              <p className="text-[12.5px] font-bold text-muted">✅ All clear — no big rents within one roll.</p>
             ) : (
               <div className="flex flex-col gap-2">
                 {items.map((it, i) => (
@@ -57,7 +57,7 @@ export function GuidePanel({ advice, busy, send }: { advice: Advice; busy: boole
         <section>
           <Heading>GOOD TO KNOW</Heading>
           {advice.tips.map((t) => (
-            <p key={t} className="mb-1 text-[12.5px] font-bold text-[#6f6580]">
+            <p key={t} className="mb-1 text-[12.5px] font-bold text-muted">
               💡 {t}
             </p>
           ))}
@@ -69,7 +69,7 @@ export function GuidePanel({ advice, busy, send }: { advice: Advice; busy: boole
 
 function Heading({ children }: { children: string }) {
   return (
-    <div className="mb-1.5 mt-3 flex items-center gap-2 text-[11px] font-black tracking-[0.14em] text-[#a89fb5] after:h-0.5 after:flex-1 after:rounded after:bg-[#eee5d6]">
+    <div className="mb-1.5 mt-3 flex items-center gap-2 text-[11px] font-extrabold tracking-[0.14em] text-muted after:h-0.5 after:flex-1 after:rounded after:bg-line-soft">
       {children}
     </div>
   );
@@ -78,20 +78,20 @@ function Heading({ children }: { children: string }) {
 function Card({ item, highlight, muted, busy, send }: { item: AdviceItem; highlight: boolean; muted: boolean; busy: boolean; send: Send }) {
   return (
     <div
-      className={`rounded-2xl border-[2.5px] border-ink px-3 py-2.5 ${
-        highlight ? "bg-[#fff7dc] shadow-[inset_0_0_0_2.5px_#ffc53d]" : muted ? "bg-white" : "bg-[#fffaf0]"
+      className={`rounded-2xl border-[1.5px] border-line px-3 py-2.5 ${
+        highlight ? "bg-tip shadow-[inset_0_0_0_2.5px_#d9a441]" : muted ? "bg-parchment" : "bg-row"
       }`}
     >
-      <h4 className="flex items-center gap-2 text-[15px] font-black">
+      <h4 className="flex items-center gap-2 text-[15px] font-extrabold">
         <span>{item.icon}</span>
         <span className="min-w-0">{item.title}</span>
         {item.tag && (
-          <span className={`ml-auto flex-none whitespace-nowrap rounded-full border-2 border-ink px-[7px] text-[10px] font-black tracking-[0.08em] ${TONE[item.tag.tone]}`}>
+          <span className={`ml-auto flex-none whitespace-nowrap rounded-full border-[1.5px] border-line px-[7px] text-[10px] font-extrabold tracking-[0.08em] ${TONE[item.tag.tone]}`}>
             {item.tag.label}
           </span>
         )}
       </h4>
-      <p className="mt-0.5 text-[12.5px] font-bold text-[#6f6580]">{item.detail}</p>
+      <p className="mt-0.5 text-[12.5px] font-bold text-muted">{item.detail}</p>
       {item.actions && item.actions.length > 0 && (
         <div className="mt-2 flex gap-2">
           {item.actions.map((a) => (
@@ -99,9 +99,7 @@ function Card({ item, highlight, muted, busy, send }: { item: AdviceItem; highli
               key={`${a.type}-${a.spaceIndex ?? ""}`}
               disabled={busy}
               onClick={() => send(a.spaceIndex !== undefined ? { type: a.type, spaceIndex: a.spaceIndex } : { type: a.type })}
-              className={`whitespace-nowrap rounded-xl border-[2.5px] border-ink px-3 py-1.5 text-[13px] font-black shadow-[0_3px_0_#1f1b2e] active:translate-y-0.5 active:shadow-[0_1px_0_#1f1b2e] disabled:opacity-50 ${
-                a.primary ? "flex-1 bg-mint" : "bg-white"
-              }`}
+              className={`gbtn gbtn-sm ${a.primary ? "gbtn-buy flex-1" : ""}`}
             >
               {a.label}
             </button>

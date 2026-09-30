@@ -1,66 +1,31 @@
 @import "tailwindcss";
 
-/* ── Design system: variant C3 (design/selected) ─────────────────────────────── */
+/* ── Design system: G2 "Felt table" (design/phase-9-restyle/variant-G2-*) ─────── */
 :root {
-  --ink: #1f1b2e;
-  --coral: #ff6b81;
-  --mango: #ffc53d;
-  --mint: #7fe3a8;
-  --lilac: #c9b8ff;
-  --cream: #fff7ea;
+  /* surfaces */
+  --felt: #1b6147;
+  --walnut: #4a2c1a;
+  --parchment: #fdf8ec;
+  --row: #f5ecd7;
+  --tip: #fbefc9;
+  --chip: #f1e6cc;
+  --line: #dcc9a0;
+  --line-soft: #eadfc3;
+  /* text */
+  --ink: #2a2118;
+  --muted: #7c6a52;
+  --on-table: #fdf3d6;
+  --on-table-muted: #cfe6d8;
+  /* accents */
+  --brass: #d9a441;
+  --brass-dark: #8a6420;
+  --coral: #c0392b;
+  --mango: #d9a441;
+  --mint: #4cc97b;
+  --lilac: #eadfc3;
+  --cream: #f5ecd7;
 }
 
-@layer utilities {
-  .bg-shader {
-    background:
-      radial-gradient(1100px 800px at 84% 8%, rgba(255, 107, 129, 0.2), transparent 62%),
-      radial-gradient(1000px 760px at 12% 100%, rgba(201, 184, 255, 0.26), transparent 60%),
-      radial-gradient(900px 700px at 96% 96%, rgba(127, 227, 168, 0.18), transparent 58%),
-      radial-gradient(1200px 900px at 30% 20%, rgba(255, 197, 61, 0.2), transparent 66%),
-      linear-gradient(180deg, #fff7ea 0%, #ffefd8 100%);
-  }
-  .bg-spotlight {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(760px 560px at 58% 47%, rgba(255, 255, 255, 0.9), transparent 70%);
-  }
-  .bg-vignette {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background: radial-gradient(120% 120% at 50% 45%, transparent 62%, rgba(31, 27, 46, 0.1) 100%);
-  }
-  .grain {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.5;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.32'/></svg>");
-    background-size: 160px 160px;
-  }
-  .press-shadow {
-    box-shadow: 0 5px 0 var(--ink);
-  }
-  .card-shadow {
-    box-shadow: 0 9px 0 var(--ink), 30px 34px 0 rgba(31, 27, 46, 0.1);
-  }
-  /* Variant D logo: white letters, ink outline, hard ink drop — matches the board center art. */
-  .logo-3d {
-    font-weight: 900;
-    letter-spacing: -0.045em;
-    color: #fff;
-    -webkit-text-stroke: 0.06em var(--ink);
-    paint-order: stroke fill;
-    text-shadow: 0 0.08em 0 var(--ink);
-  }
-}
-
-/* ── Legacy scaffold theme (replaced by C3 palette above) ──────────────────── */
 @theme inline {
   --color-ink: var(--ink);
   --color-coral: var(--coral);
@@ -68,14 +33,146 @@
   --color-mint: var(--mint);
   --color-lilac: var(--lilac);
   --color-cream: var(--cream);
-  --color-background: var(--cream);
+  --color-felt: var(--felt);
+  --color-walnut: var(--walnut);
+  --color-parchment: var(--parchment);
+  --color-row: var(--row);
+  --color-tip: var(--tip);
+  --color-chip: var(--chip);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+  --color-muted: var(--muted);
+  --color-brass: var(--brass);
+  --color-brass-dark: var(--brass-dark);
+  --color-on-table: var(--on-table);
+  --color-on-table-muted: var(--on-table-muted);
+  --color-background: var(--felt);
   --color-foreground: var(--ink);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-outfit), "Segoe UI", system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
+  --shadow-panel: 0 16px 40px rgba(0, 0, 0, 0.4), inset 0 1px 0 #fff;
+  --shadow-soft: 0 6px 16px rgba(0, 0, 0, 0.28);
+  --shadow-chip: 0 2px 0 rgba(42, 33, 24, 0.14);
+}
+
+@layer utilities {
+  /* the table: felt with a soft spotlight and a vignette */
+  .bg-table {
+    background:
+      radial-gradient(120% 120% at 50% 45%, transparent 58%, rgba(0, 0, 0, 0.45) 100%),
+      radial-gradient(1100px 760px at 40% 46%, #2f9a70, #17563f 62%, #0d3526 100%);
+  }
+}
+
+@layer components {
+  /* parchment panel */
+  .panel {
+    background: color-mix(in srgb, var(--parchment) 96%, transparent);
+    border: 2px solid var(--line);
+    border-radius: 20px;
+    box-shadow: var(--shadow-panel);
+    color: var(--ink);
+  }
+
+  /* chunky bevelled game button */
+  .gbtn {
+    --b1: #fffaf0;
+    --b2: #eadcbd;
+    --b3: #c4b08a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 50px;
+    padding: 0 22px;
+    border-radius: 16px;
+    font-weight: 800;
+    font-size: 17px;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
+    color: var(--ink);
+    background: linear-gradient(180deg, var(--b1), var(--b2));
+    box-shadow:
+      0 5px 0 var(--b3),
+      0 12px 22px rgba(0, 0, 0, 0.28),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+    transition:
+      transform 0.06s ease,
+      box-shadow 0.06s ease,
+      filter 0.12s ease;
+  }
+  .gbtn:hover:not(:disabled) {
+    filter: brightness(1.05);
+  }
+  .gbtn:active:not(:disabled) {
+    transform: translateY(3px);
+    box-shadow:
+      0 2px 0 var(--b3),
+      0 6px 12px rgba(0, 0, 0, 0.25),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+  }
+  .gbtn:disabled {
+    filter: saturate(0.3) brightness(0.95);
+    opacity: 0.6;
+  }
+  .gbtn-buy {
+    --b1: #5fe08a;
+    --b2: #27b35a;
+    --b3: #178043;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  }
+  .gbtn-gold {
+    --b1: #ffdf7a;
+    --b2: #f0b429;
+    --b3: #b57f12;
+    color: #3d2a00;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.5);
+  }
+  .gbtn-danger {
+    --b1: #ef6a5a;
+    --b2: #c0392b;
+    --b3: #8a251b;
+    color: #fff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.3);
+  }
+  .gbtn-sm {
+    height: 38px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    box-shadow:
+      0 3px 0 var(--b3),
+      0 6px 12px rgba(0, 0, 0, 0.18),
+      inset 0 1.5px 0 rgba(255, 255, 255, 0.45);
+  }
+
+  /* gold coin used before money amounts */
+  .coin {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    flex: none;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c451 45%, #c9962b 100%);
+    box-shadow:
+      0 0 0 1.5px #a9781c inset,
+      0 1px 0 rgba(0, 0, 0, 0.25);
+    vertical-align: -0.12em;
+  }
+
+  /* big title on the felt */
+  .logo-3d {
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    color: var(--on-table);
+    text-shadow: 0 0.06em 0 rgba(0, 0, 0, 0.3);
+  }
 }
 
 body {
-  background: var(--cream);
+  background: var(--felt);
   color: var(--ink);
 }
 
@@ -83,4 +180,3 @@ button:not(:disabled),
 [role="button"]:not(:disabled) {
   cursor: pointer;
 }
-

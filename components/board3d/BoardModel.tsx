@@ -66,13 +66,13 @@ function Slab() {
   return (
     <group>
       <RoundedBox args={[BOARD_W + 0.7, 0.42, BOARD_W + 0.7]} radius={0.2} smoothness={6} position-y={-0.36} castShadow receiveShadow>
-        <meshStandardMaterial color="#2a2440" roughness={0.5} />
+        <meshStandardMaterial color="#4a2c1a" roughness={0.55} />
       </RoundedBox>
       <RoundedBox args={[BOARD_W + 0.76, 0.09, BOARD_W + 0.76]} radius={0.04} smoothness={4} position-y={-0.24}>
-        <meshStandardMaterial color="#ff6b81" roughness={0.4} />
+        <meshStandardMaterial color="#d9a441" roughness={0.3} metalness={0.6} />
       </RoundedBox>
       <RoundedBox args={[BOARD_W + 0.5, 0.16, BOARD_W + 0.5]} radius={0.07} smoothness={6} position-y={-0.08} receiveShadow>
-        <meshStandardMaterial color="#fff6e4" roughness={0.8} />
+        <meshStandardMaterial color="#54321e" roughness={0.6} />
       </RoundedBox>
     </group>
   );
@@ -112,7 +112,7 @@ const Tile = memo(function Tile({ index, ownerColor, mortgaged, active, onSelect
     >
       <RoundedBox args={[P.w - GAP, TILE_T, P.d - GAP]} radius={0.045} smoothness={3} position-y={TILE_T / 2} castShadow receiveShadow>
         {/* the slab edge picks up the owner's color too, so ownership reads from any angle */}
-        <meshStandardMaterial color={ownerColor ? mixColor(ownerColor, "#e9dcc3", 0.55) : "#e9dcc3"} roughness={0.7} />
+        <meshStandardMaterial color={ownerColor ? mixColor(ownerColor, "#dfd3b8", 0.55) : "#dfd3b8"} roughness={0.7} />
       </RoundedBox>
       <mesh rotation-x={-Math.PI / 2} position-y={TILE_T + 0.003} receiveShadow>
         <planeGeometry args={[P.w - GAP, P.d - GAP]} />

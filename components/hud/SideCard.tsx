@@ -46,8 +46,8 @@ export function SideCard({
     ["rules", "⚙️", "Rules"],
   ];
   return (
-    <div className="pointer-events-auto flex h-full flex-col rounded-[20px] border-[3px] border-ink bg-white px-[18px] py-3.5 shadow-[0_5px_0_#1f1b2e]">
-      <div className="flex gap-1" role="tablist">
+    <div className="panel pointer-events-auto flex h-full flex-col overflow-hidden">
+      <div className="flex gap-1.5 border-b-2 border-line p-3" role="tablist">
         {TABS.map(([t, label, name]) => (
           <button
             key={t}
@@ -55,16 +55,16 @@ export function SideCard({
             aria-label={name}
             aria-selected={tab === t}
             onClick={() => onTab(t)}
-            className={`relative whitespace-nowrap rounded-full border-[2.5px] px-2.5 py-[5px] text-[12.5px] font-black ${tab === t ? "border-ink bg-mango text-ink" : "border-transparent text-[#8a809b] hover:text-ink"}`}
+            className={`relative whitespace-nowrap rounded-xl px-2 py-2 text-[13px] font-bold ${t === "rules" ? "px-3" : "flex-1"} ${tab === t ? "bg-brass text-[#2a1c00] shadow-[0_3px_0_#8a6420]" : "text-muted hover:text-ink"}`}
           >
             {label}
             {t === "guide" && advice.urgent && tab !== "guide" && (
-              <span aria-hidden className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-ink bg-mango" />
+              <span aria-hidden className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-[1.5px] border-line bg-brass" />
             )}
           </button>
         ))}
       </div>
-      <div className="mt-1 min-h-0 flex-1 overflow-y-auto pr-1 [scrollbar-width:thin]">
+      <div className="min-h-0 flex-1 overflow-y-auto px-3.5 pb-3 [scrollbar-width:thin]">
         {tab === "history" && <HistoryFeed state={state} myId={myId} />}
         {tab === "guide" && <GuidePanel advice={advice} busy={busy} send={send} />}
         {tab === "cities" && <MyCities state={state} myId={myId} busy={busy} send={send} onOpenDeed={onOpenDeed} />}
@@ -79,28 +79,28 @@ function HistoryFeed({ state, myId }: { state: ClientGameState; myId: string | n
   const me = state.players.find((p) => p.id === myId)?.name ?? null;
   const jackpot = settingsOf(state).parkingJackpot;
   const groups = useMemo(() => filterHistory(buildHistory(state.log, me, jackpot), filter), [state.log, me, jackpot, filter]);
-  const colorOf = (name?: string) => state.players.find((p) => p.name === name)?.colorToken ?? "#e6ded0";
+  const colorOf = (name?: string) => state.players.find((p) => p.name === name)?.colorToken ?? "#cdbd96";
   const current = state.players[state.turn.playerIdx]?.name;
   const names = state.players.map((p) => p.name).sort((a, b) => b.length - a.length);
 
   return (
     <div>
-      <div className="sticky top-0 z-10 flex gap-1 bg-white pb-1 pt-2">
+      <div className="sticky top-0 z-10 flex gap-1 bg-parchment pb-1 pt-2">
         {(["all", "money", "moves"] as HistoryFilter[]).map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-black capitalize ${filter === f ? "bg-ink text-white" : "text-[#8a809b] hover:text-ink"}`}
+            className={`rounded-full px-2.5 py-0.5 text-[11.5px] font-extrabold capitalize ${filter === f ? "bg-ink text-white" : "text-muted hover:text-ink"}`}
           >
             {f}
           </button>
         ))}
       </div>
-      {groups.length === 0 && <p className="py-6 text-center text-sm font-bold text-[#a89fb5]">Nothing here yet.</p>}
+      {groups.length === 0 && <p className="py-6 text-center text-sm font-bold text-muted">Nothing here yet.</p>}
       {groups.map((g, gi) => (
         <Fragment key={g.key}>
-          <div className="mb-1 mt-2.5 flex items-center gap-2 text-[11px] font-black tracking-[0.12em] text-[#a89fb5] after:h-0.5 after:flex-1 after:rounded after:bg-[#eee5d6]">
-            <span className="h-2.5 w-2.5 rounded-full border-2 border-ink" style={{ background: colorOf(g.actor) }} />
+          <div className="mb-1 mt-2.5 flex items-center gap-2 text-[11px] font-extrabold tracking-[0.12em] text-muted after:h-0.5 after:flex-1 after:rounded after:bg-line-soft">
+            <span className="h-2.5 w-2.5 rounded-full border-[1.5px] border-line" style={{ background: colorOf(g.actor) }} />
             {g.turn === 0 ? "SETUP" : `TURN ${g.turn} · ${(g.actor ?? "").toUpperCase()}${gi === 0 && g.actor === current && state.phase === "playing" ? " · NOW" : ""}`}
           </div>
           {g.items.map((it, ii) => {
@@ -108,9 +108,9 @@ function HistoryFeed({ state, myId }: { state: ClientGameState; myId: string | n
             return (
               <div
                 key={it.key}
-                className={`flex items-center gap-2.5 py-1.5 text-[13.5px] font-bold text-[#4a4258] ${live ? "-mx-2 rounded-xl bg-[#fff7dc] px-2 shadow-[inset_0_0_0_2.5px_#ffc53d]" : ""}`}
+                className={`my-1 flex items-center gap-2.5 rounded-[14px] px-2.5 py-2 text-[13.5px] font-medium text-ink ${live ? "bg-tip shadow-[inset_0_0_0_2px_#d9a441]" : "bg-row"}`}
               >
-                <span className="grid h-[30px] w-[30px] flex-none place-items-center rounded-[9px] border-[2.5px] border-ink text-sm" style={{ background: it.tint }}>
+                <span className="grid h-8 w-8 flex-none place-items-center rounded-[10px] bg-chip text-base">
                   {it.icon}
                 </span>
                 <span className="min-w-0">{emphasize(it.text, names)}</span>
@@ -128,25 +128,25 @@ function HistoryFeed({ state, myId }: { state: ClientGameState; myId: string | n
 function emphasize(text: string, names: string[]) {
   if (names.length === 0) return text;
   const re = new RegExp(`(${names.map((n) => n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "g");
-  return text.split(re).map((part, i) => (names.includes(part) ? <b key={i} className="font-black text-ink">{part}</b> : part));
+  return text.split(re).map((part, i) => (names.includes(part) ? <b key={i} className="font-extrabold text-ink">{part}</b> : part));
 }
 
 function MyCities({ state, myId, busy, send, onOpenDeed }: { state: ClientGameState; myId: string | null; busy: boolean; send: Send; onOpenDeed: (i: number) => void }) {
   const mine = BOARD.filter((s) => state.ownership[s.index]?.ownerId === myId);
-  if (!myId) return <p className="py-6 text-center text-sm font-bold text-[#a89fb5]">You are watching this game.</p>;
-  if (mine.length === 0) return <p className="py-6 text-center text-sm font-bold text-[#a89fb5]">No cities yet — land on one and buy it.</p>;
-  const small = "rounded-[10px] border-[2.5px] border-ink bg-white px-2 py-1 text-[11.5px] font-black shadow-[0_2px_0_#1f1b2e] disabled:opacity-40";
+  if (!myId) return <p className="py-6 text-center text-sm font-bold text-muted">You are watching this game.</p>;
+  if (mine.length === 0) return <p className="py-6 text-center text-sm font-bold text-muted">No cities yet — land on one and buy it.</p>;
+  const small = "rounded-[10px] border-[1.5px] border-line bg-parchment px-2 py-1 text-[11.5px] font-extrabold shadow-chip disabled:opacity-40";
   return (
     <div className="pt-2">
       {mine.map((s) => {
         const own = state.ownership[s.index];
         return (
-          <div key={s.index} className="border-b-2 border-dashed border-[#efe6d6] py-2.5 last:border-b-0">
+          <div key={s.index} className="border-b-2 border-dashed border-line-soft py-2.5 last:border-b-0">
             <button onClick={() => onOpenDeed(s.index)} className="flex w-full items-center gap-2.5 text-left">
               <span className="text-2xl leading-none">{CITY_LANDMARK[s.index] ?? SPACE_ICON[s.index] ?? "🏷️"}</span>
               <span className="min-w-0 flex-1">
-                <b className="block truncate text-[15px] font-black">{s.name}</b>
-                <span className="text-xs font-bold text-[#8a809b]">
+                <b className="block truncate text-[15px] font-extrabold">{s.name}</b>
+                <span className="text-xs font-bold text-muted">
                   {s.group ? SET_NAME[s.group] : ""}
                   {own.houses >= 5 ? " · hotel" : own.houses > 0 ? ` · ${own.houses} house${own.houses > 1 ? "s" : ""}` : ""}
                   {own.mortgaged ? " · mortgaged" : ""}
@@ -199,16 +199,16 @@ function RulesList({ state, code, onLeave }: { state: ClientGameState; code: str
   return (
     <div className="pt-2">
       {rows.map(([k, v]) => (
-        <div key={k} className="flex justify-between border-b-2 border-dashed border-[#efe6d6] py-2 text-sm font-extrabold text-[#6f6580] last:border-b-0">
+        <div key={k} className="flex justify-between border-b-2 border-dashed border-line-soft py-2 text-sm font-extrabold text-muted last:border-b-0">
           <span>{k}</span>
-          <b className="font-black text-ink">{v}</b>
+          <b className="font-extrabold text-ink">{v}</b>
         </div>
       ))}
-      <p className="mt-3 text-xs font-bold text-[#a89fb5]">Rules were set by the host in the lobby and are locked for this game.</p>
+      <p className="mt-3 text-xs font-bold text-muted">Rules were set by the host in the lobby and are locked for this game.</p>
       {onLeave && (
         <button
           onClick={onLeave}
-          className="mt-5 w-full rounded-[14px] border-[3px] border-ink bg-white py-2.5 text-sm font-black text-coral shadow-[0_3px_0_#1f1b2e] hover:bg-[#fff0f2]"
+          className="mt-5 w-full rounded-[14px] border-2 border-line bg-parchment py-2.5 text-sm font-extrabold text-coral shadow-chip hover:bg-[#fff0f2]"
         >
           🚪 Leave game (forfeit)
         </button>

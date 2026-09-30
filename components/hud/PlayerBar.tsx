@@ -1,10 +1,9 @@
 import { BOARD } from "@/lib/engine/board";
 import type { ClientGameState } from "@/lib/shared/events";
 
-import { PawnBadge, Tag } from "./bits";
-import { formatMoney } from "./history";
+import { Avatar, Coins, Tag } from "./bits";
 
-/** "4 cities · 1 hotel" style summary of what a player owns. */
+/** "4 cities · 1 hotel" style summary of what a player owns (shown as the plate's tooltip). */
 function holdings(state: ClientGameState, playerId: string): string {
   let cities = 0, other = 0, houses = 0, hotels = 0, mortgaged = 0;
   for (const [idx, own] of Object.entries(state.ownership)) {
@@ -24,33 +23,33 @@ function holdings(state: ClientGameState, playerId: string): string {
   return parts.join(" · ") || "no properties yet";
 }
 
+/** Player plates (G2): avatar, name, coin balance; the active one is enlarged with a brass ring. */
 export function PlayerBar({ state, myId }: { state: ClientGameState; myId: string | null }) {
   return (
-    <div className="pointer-events-auto flex gap-2.5 overflow-x-auto pb-2 [scrollbar-width:none]">
+    <div className="pointer-events-auto flex items-center gap-2.5 overflow-x-auto px-2 py-2 [scrollbar-width:none] lg:justify-center">
       {state.players.map((p, i) => {
         const turn = state.phase === "playing" && i === state.turn.playerIdx;
+        const me = p.id === myId;
         return (
           <div
             key={p.id}
-            className={`min-w-[230px] max-w-[300px] flex-1 rounded-[18px] border-[3px] border-ink bg-white p-1 shadow-[0_5px_0_#1f1b2e] ${p.bankrupt ? "opacity-50" : ""}`}
+            title={`${p.name} — ${holdings(state, p.id)}`}
+            className={`flex flex-none items-center gap-2.5 rounded-full border-2 bg-parchment py-1.5 pl-1.5 pr-3.5 shadow-soft transition-transform ${
+              turn ? "scale-[1.06] border-brass shadow-[0_0_0_4px_rgba(217,164,65,0.35),0_6px_16px_rgba(0,0,0,0.3)]" : "border-line"
+            } ${p.bankrupt ? "opacity-50" : ""}`}
           >
-            <div className={`flex items-center gap-2.5 rounded-[14px] px-3 py-2.5 ${turn ? "bg-[#fff7dc] shadow-[inset_0_0_0_3px_#ffc53d]" : ""}`}>
-              <PawnBadge color={p.colorToken} />
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5 whitespace-nowrap text-[15px] font-black">
-                  <span className={`truncate ${p.bankrupt ? "line-through" : ""}`}>{p.name}</span>
-                  {p.id === myId && <small className="text-xs font-extrabold text-[#b6adc4]">(you)</small>}
-                </div>
-                <div className="flex items-center gap-1 whitespace-nowrap text-[11.5px] font-extrabold text-[#8a809b]">
-                  {p.isBot && <Tag className="bg-lilac text-ink">BOT</Tag>}
-                  {p.inJail && <Tag className="bg-[#ffab5e] text-ink">IN JAIL</Tag>}
-                  {!p.connected && !p.isBot && <Tag className="bg-[#efe6d6] text-ink">AWAY</Tag>}
-                  {p.bankrupt && <Tag className="bg-coral text-white">OUT</Tag>}
-                  <span className="truncate">{holdings(state, p.id)}</span>
-                </div>
-              </div>
-              <div className="ml-auto text-lg font-black">{formatMoney(p.money)}</div>
+            <Avatar color={p.colorToken} name={p.name} bot={p.isBot} />
+            <div className="leading-tight">
+              <b className={`block max-w-[110px] truncate text-sm font-bold ${p.bankrupt ? "line-through" : ""}`}>
+                {p.name}
+                {me && <span className="font-semibold text-muted"> · you</span>}
+              </b>
+              <Coins amount={p.money} className="text-[15px] font-extrabold" />
             </div>
+            {turn && <Tag className="bg-brass text-[#2a1c00]">{me ? "YOUR TURN" : "PLAYING"}</Tag>}
+            {p.inJail && <Tag className="bg-chip text-ink">JAIL</Tag>}
+            {!p.connected && !p.isBot && !p.bankrupt && <Tag className="bg-chip text-ink">AWAY</Tag>}
+            {p.bankrupt && <Tag className="bg-coral text-white">OUT</Tag>}
           </div>
         );
       })}

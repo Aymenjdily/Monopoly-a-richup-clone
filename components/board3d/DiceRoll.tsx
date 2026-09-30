@@ -66,8 +66,8 @@ export function DiceRoll({ dice, rollKey }: { dice: [number, number]; rollKey: s
 
   return (
     <group>
-      <Die ref={die0} color="#ff6b81" pip="#ffffff" />
-      <Die ref={die1} color="#fffaf0" pip="#1f1b2e" />
+      <Die ref={die0} color="#c0392b" pip="#ffffff" />
+      <Die ref={die1} color="#fdf9ef" pip="#2a2118" />
     </group>
   );
 }
