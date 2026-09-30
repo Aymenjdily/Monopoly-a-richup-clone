@@ -1,11 +1,11 @@
 /**
- * Visual-only theme for the 3D board (design/phase-5-board/variant-C2-board-v3).
+ * Visual-only theme for the 3D board (C2 rev 3 board design).
  * Names, prices and rules come from lib/engine/board.ts; this file only adds what the
  * board *looks* like (country flag, icon, pastel band color). Nothing here is game state.
  */
 import type { GroupId } from "@/lib/engine/board";
 
-// G2 "felt table" palette (design/phase-9-restyle/variant-G2-*).
+// G2 "felt table" palette.
 export const INK = "#2a2118";
 export const PAPER = "#fdf9ef";
 export const CORAL = "#c0392b";
@@ -14,7 +14,6 @@ export const LILAC = "#eadfc3";
 /** Thin tan outline used instead of heavy ink strokes. */
 export const LINE = "#cdbd96";
 export const BRASS_DARK = "#8a6420";
-export const WALNUT = "#4a2c1a";
 export const FELT = "#1b6147";
 
 /**

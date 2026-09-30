@@ -1,6 +1,6 @@
 /**
  * Canvas painters for the board (client-only: uses `document`). Ported from the approved
- * mockup design/phase-5-board/variant-C2-board-v3.html. Pure drawing — callers wrap the
+ * C2 rev 3 board design. Pure drawing — callers wrap the
  * canvases in THREE.CanvasTexture and cache them.
  */
 import type { BoardSpace } from "@/lib/engine/types";

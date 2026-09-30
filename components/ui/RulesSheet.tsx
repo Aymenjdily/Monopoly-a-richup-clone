@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * "Room rules" sheet (design/phase-6-lobby-settings/variant-E2-lobby.png).
+ * "Room rules" sheet (design E2).
  * The host edits a local draft and saves; everyone else sees the live values read-only.
  * The server validates every value — this component only offers the whitelisted options.
  */

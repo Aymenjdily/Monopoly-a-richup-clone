@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* ── Design system: G2 "Felt table" (design/phase-9-restyle/variant-G2-*) ─────── */
+/* ── Design system: G2 "Felt table" ─────────────────────────────────────────── */
 :root {
   /* surfaces */
   --felt: #1b6147;

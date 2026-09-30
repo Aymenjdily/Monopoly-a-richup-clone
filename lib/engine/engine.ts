@@ -806,11 +806,5 @@ function diceTotal(state: GameState): number {
   return state.dice[0] + state.dice[1];
 }
 
-/** Helper shared with tests: count how many of a group a player owns. */
-export function countGroupOwnership(state: GameState, playerId: string, group: string): number {
-  return (
-    spaceIndicesOfOwner(state, playerId).filter((i) => BOARD[i].group === group).length
-  );
-}
 
 

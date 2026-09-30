@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Lobby stage (design/phase-6-ui-rework/variant-D-lobby.png): six podiums, one pawn per
+ * Lobby stage (design D): six podiums, one pawn per
  * seated player, ghost pawns on empty seats. Seat labels/buttons are plain DOM placed from
  * projected 3D anchors (no React roots inside the Canvas). Load with ssr:false.
  */

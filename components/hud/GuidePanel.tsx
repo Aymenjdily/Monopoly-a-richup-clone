@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * 💡 Guide tab (design/phase-8-guide/variant-G2-guide.png). Renders the pure advisor's output;
+ * 💡 Guide tab (design G2). Renders the pure advisor's output;
  * buttons go through the same send() as the rest of the HUD — the server decides.
  */
 import { useMemo } from "react";

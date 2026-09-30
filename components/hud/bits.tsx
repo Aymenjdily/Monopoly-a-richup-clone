@@ -58,11 +58,6 @@ export function Avatar({ color, name, bot = false, size = 40 }: { color: string;
   );
 }
 
-/** Small square swatch version (lists). */
-export function PawnBadge({ color, size = 34 }: { color: string; size?: number }) {
-  return <Avatar color={color} name="" size={size} />;
-}
-
 /** Money with the gold coin in front. */
 export function Coins({ amount, className = "" }: { amount: number; className?: string }) {
   return (

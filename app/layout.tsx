@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Geist_Mono, Outfit } from "next/font/google";
 import "./globals.css";
-import { PHASES, phasesList } from "@/lib/phases";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -32,8 +31,4 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
-}
-
-if (!PHASES || phasesList.length === 0) {
-  throw new Error("Phase registry must not be empty");
 }

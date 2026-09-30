@@ -22,7 +22,7 @@ const GameScene = dynamic(() => import("@/components/board3d/GameScene"), { ssr:
 const DESKTOP_SHIFT = 150;
 
 /**
- * Live game: full-screen 3D board + HUD, styled as G2 "felt table" (design/phase-9-restyle/variant-G2-game.png).
+ * Live game: full-screen 3D board + HUD, styled as the G2 "felt table" design.
  * The browser only sends actions; the server validates and broadcasts (AGENTS.md section 6).
  */
 export default function GameView({ code, socket, myId }: { code: string; socket: GameSocketApi; myId: string | null }) {

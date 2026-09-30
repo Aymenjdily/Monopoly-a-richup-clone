@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * Home hero (design/phase-6-ui-rework/variant-D-home.png): the real board with a demo
+ * Home hero (design D): the real board with a demo
  * position, dice caught mid-roll. Static — renders on demand only. Load with ssr:false.
  */
 import { Canvas, useThree } from "@react-three/fiber";

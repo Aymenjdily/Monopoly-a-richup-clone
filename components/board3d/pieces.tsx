@@ -2,7 +2,7 @@
 
 /**
  * Shared 3D pieces (board, home hero, lobby stage). Geometry and materials follow the
- * approved mockup design/phase-5-board/variant-C2-board-v3.html.
+ * approved C2 rev 3 board design.
  */
 import { RoundedBox } from "@react-three/drei";
 import { useThree, type ThreeElements } from "@react-three/fiber";
@@ -34,8 +34,6 @@ const PAWN_PROFILE = [
 ].map(([r, y]) => new THREE.Vector2(r, y));
 const pawnGeo = new THREE.LatheGeometry(PAWN_PROFILE, 40);
 const headGeo = new THREE.SphereGeometry(0.125, 32, 20);
-
-export const PAWN_HEIGHT = 0.68;
 
 export const Pawn = forwardRef<THREE.Group, { color: string; ghost?: boolean } & ThreeElements["group"]>(
   function Pawn({ color, ghost = false, ...props }, ref) {

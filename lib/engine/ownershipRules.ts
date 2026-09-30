@@ -5,13 +5,7 @@
 import { BOARD } from "./board";
 import type { GroupId } from "./board";
 import { settingsOf } from "./settings";
-import type { GameState, OwnershipEntry, Player } from "./types";
-
-export function groupsOfKind(group: GroupId): "street" | "railroad" | "utility" {
-  if (group === "railroad") return "railroad";
-  if (group === "utility") return "utility";
-  return "street";
-}
+import type { GameState, Player } from "./types";
 
 export function spaceIndicesInGroup(group: GroupId): number[] {
   return BOARD.filter((s) => s.group === group).map((s) => s.index);
@@ -26,10 +20,6 @@ export function spaceIndicesOfOwner(state: GameState, playerId: string): number[
 export function ownsFullSet(state: GameState, playerId: string, group: GroupId): boolean {
   const indices = spaceIndicesInGroup(group);
   return indices.every((i) => state.ownership[i]?.ownerId === playerId);
-}
-
-export function ownerOf(state: GameState, spaceIndex: number): OwnershipEntry | undefined {
-  return state.ownership[spaceIndex];
 }
 
 /** True when the full color set has zero houses on every property and no mortgages. */
@@ -167,24 +157,6 @@ export function canSellBuilding(
     }
   }
   return { ok: true };
-}
-
-/** Immediate liquidation value of one property (half price if bare, plus buildings at 50%). */
-export function liquidationValue(state: GameState, spaceIndex: number): number {
-  const space = BOARD[spaceIndex];
-  const entry = state.ownership[spaceIndex];
-  if (!space || !entry) return 0;
-  const buildingRefund = space.type === "property" ? Math.floor((entry.houses * (space.houseCost ?? 0)) / 2) : 0;
-  const mortgage = space.mortgageValue ?? Math.round((space.price ?? 0) / 2);
-  return buildingRefund + mortgage;
-}
-
-/** Total cash a player could raise right now: buildings (50%) + mortgage values. */
-export function totalLiquidationValue(state: GameState, playerId: string): number {
-  return spaceIndicesOfOwner(state, playerId).reduce(
-    (sum, i) => sum + liquidationValue(state, i),
-    0
-  );
 }
 
 /** Price to lift a mortgage: the mortgage value plus a 10% fee (rounded up, integer dollars). */

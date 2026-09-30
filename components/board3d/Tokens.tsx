@@ -9,6 +9,7 @@ import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
 import { ACTIVE_LIFT } from "./BoardModel";
+import { diceClock } from "./DiceRoll";
 import { TILE_T, fanOffset, jailCellAnchor, pawnAnchor, walkPath } from "./layout";
 import { playSfx } from "@/components/sound/sfx";
 
@@ -25,8 +26,10 @@ export interface TokenPlayer {
   bankrupt: boolean;
 }
 
-const STEP_MS = 140;
+const STEP_MS = 200;
 const JUMP_MS = 480;
+/** Beat between the dice landing and the pawn setting off. */
+const AFTER_DICE_MS = 250;
 
 export function Tokens({ players, activePlayerId, activeTile, myId }: { players: TokenPlayer[]; activePlayerId: string | null; activeTile: number | null; myId: string | null }) {
   const placed = useMemo(() => {
@@ -115,6 +118,8 @@ function AnimatedPawn({ color, tile, inJail, final, plate, isMe }: { color: stri
     if (!g) return;
     const now = performance.now();
     if (!seg.current) {
+      // never walk while the dice are still tumbling
+      if (queue.current.length === 0 || now < diceClock.settleAt + AFTER_DICE_MS) return;
       const next = queue.current.shift();
       if (!next) return;
       seg.current = { from: g.position.clone(), s: next, t0: now };

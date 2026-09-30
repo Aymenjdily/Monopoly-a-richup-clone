@@ -36,12 +36,6 @@ export function broadcastGame(code: string, state: GameState): void {
   });
 }
 
-export function broadcastRoom(code: string, view: Parameters<typeof publicRoomView>[1] extends never ? never : RoomPublicView & { code: string }): void {
-  const io = getIoServer();
-  if (!io) return;
-  io.to(roomChannel(code)).emit("room:state", { code, view } as never);
-}
-
 export async function loadGameState(code: string) {
   const game = await prisma.game.findUnique({ where: { code: code.toUpperCase() } });
   if (!game) return null;
@@ -108,15 +102,11 @@ async function runActionTransaction(
   }
 }
 
-import { mulberry32, type Rng } from "@/lib/engine/rng";
+import { mulberry32 } from "@/lib/engine/rng";
 import { randomInt } from "node:crypto";
 
 function cryptoRandomSeed(): number {
   return randomInt(0, 0xffffffff);
-}
-
-export function makeEngineRng(): Rng {
-  return mulberry32(cryptoRandomSeed());
 }
 
 /**

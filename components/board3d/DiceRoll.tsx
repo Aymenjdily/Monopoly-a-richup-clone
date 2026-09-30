@@ -12,7 +12,9 @@ import { playSfx } from "@/components/sound/sfx";
 
 import { DIE_SIZE, Die, faceUpEuler } from "./pieces";
 
-const ROLL_MS = 750;
+export const ROLL_MS = 750;
+/** When the current tumble lands (performance.now() time); pawns wait for it before walking. */
+export const diceClock = { settleAt: 0 };
 const REST: [number, number][] = [[-0.55, 1.35], [0.45, 1.2]];
 const YAW = [0.5, -0.3];
 
@@ -41,8 +43,10 @@ export function DiceRoll({ dice, rollKey }: { dice: [number, number]; rollKey: s
     // deterministic-looking but varied spins, derived from the roll key
     const seed = String(rollKey ?? "").split("").reduce((s, c) => s + c.charCodeAt(0), a * 7 + b);
     playSfx("dice");
+    const t0 = performance.now();
+    diceClock.settleAt = t0 + ROLL_MS;
     anim.current = {
-      t0: performance.now(),
+      t0,
       spins: [0, 1].map((i) => new THREE.Vector3(3 + ((seed + i) % 3), 2 + ((seed >> 1) % 2), 2 + ((seed + 2 * i) % 3)).multiplyScalar(Math.PI)),
     };
   }, [a, b, rollKey]);

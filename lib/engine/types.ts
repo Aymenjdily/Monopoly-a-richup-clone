@@ -1,5 +1,4 @@
 import type { GroupId } from "./board";
-import type { Rng } from "./rng";
 import type { RoomSettings } from "./settings";
 
 export type SpaceType =
@@ -90,8 +89,6 @@ export type GameAction =
   | { type: "payJailFine" }
   | { type: "useJailCard" };
 
-export type ActionUnion = GameAction | { type: string } & Record<string, unknown>;
-
 export interface ApplyResult {
   ok: boolean;
   state: GameState;
@@ -100,13 +97,6 @@ export interface ApplyResult {
 }
 
 /** The single engine entry point signature (implemented in engine.ts). */
-export type ApplyFn = (input: {
-  state: GameState;
-  playerId: string;
-  action: ActionUnion;
-  rng: Rng;
-}) => ApplyResult;
-
 /** Everything a deed records. Keys are space indices for properties/railroads/utilities. */
 export interface OwnershipEntry {
   ownerId: string;
@@ -153,7 +143,6 @@ export interface GameState {
 
 export const START_MONEY = 1500;
 export const GO_SALARY = 200;
-export const GO_SALARY_BONUS = 200; // extra when landing exactly on GO (AGENTS.md decision 9 family)
 export const JAIL_TILE = 10;
 export const JAIL_FINE = 50;
 export const MAX_DOUBLES = 3;

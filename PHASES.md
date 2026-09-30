@@ -105,10 +105,15 @@ Track here. Update after each shipped phase.
 | 0 Scaffold | done | [prompts/2026-09-26-phase-0-scaffold.md](prompts/2026-09-26-phase-0-scaffold.md) | — |
 | 1 Engine core | done | [prompts/2026-09-26-phase-1-engine-core.md](prompts/2026-09-26-phase-1-engine-core.md) | — |
 | 2 Full rules | done | [prompts/2026-09-26-phase-2-full-rules.md](prompts/2026-09-26-phase-2-full-rules.md) | — |
-| 3 Rooms + persistence | done — UI live vs Neon | [prompts/2026-09-26-phase-3-rooms-persistence.md](prompts/2026-09-26-phase-3-rooms-persistence.md) | variant C3 (locked, `design/selected/`) |
+| 3 Rooms + persistence | done — UI live vs Neon | [prompts/2026-09-26-phase-3-rooms-persistence.md](prompts/2026-09-26-phase-3-rooms-persistence.md) | C3 (replaced by D, then G2; removed) |
 | 3.5 Bot players | done | [prompts/2026-09-26-phase-3-5-bot-players.md](prompts/2026-09-26-phase-3-5-bot-players.md) | — |
 | 4 Real-time sync | done | [prompts/2026-09-26-phase-4-realtime-sync.md](prompts/2026-09-26-phase-4-realtime-sync.md) | — |
-| 4 Real-time sync | not started | — | — |
-| 5 3D board | not started | — | — |
-| 6 Game HUD | not started | — | — |
-| 7 Full loop | not started | — | — |
+| 5 3D board + home/lobby rework | done | [prompts/2026-09-27-phase-5-3d-board-and-ui-rework.md](prompts/2026-09-27-phase-5-3d-board-and-ui-rework.md) | C2 rev 3 board, D home/lobby |
+| Lobby room settings | done | [prompts/2026-09-27-lobby-room-settings.md](prompts/2026-09-27-lobby-room-settings.md) | E2 rules sheet |
+| 6 Game HUD | done | [prompts/2026-09-27-phase-6-game-hud.md](prompts/2026-09-27-phase-6-game-hud.md) | F3 |
+| Sound effects + lobby music | done | [prompts/2026-09-27-sound-effects.md](prompts/2026-09-27-sound-effects.md), [prompts/2026-09-27-lobby-music.md](prompts/2026-09-27-lobby-music.md) | — |
+| 7 Presence, leave, locks | done | [prompts/2026-09-27-phase-7-presence-leave-locks.md](prompts/2026-09-27-phase-7-presence-leave-locks.md) | — |
+| 8 In-game guide | done | [prompts/2026-09-27-phase-8-guide.md](prompts/2026-09-27-phase-8-guide.md) | G2 guide tab |
+| 9 Restyle: felt table | done | [prompts/2026-09-30-phase-9-restyle-felt-table.md](prompts/2026-09-30-phase-9-restyle-felt-table.md) | G2 felt table |
+| 10 Jev bots + personalities | done | [prompts/2026-09-30-phase-10-jev-bots.md](prompts/2026-09-30-phase-10-jev-bots.md) | — |
+| Roll pacing | done | [prompts/2026-09-30-roll-pacing.md](prompts/2026-09-30-roll-pacing.md) | — |

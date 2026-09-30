@@ -7,19 +7,6 @@ import type { BoardSpace } from "./types";
 
 export type GroupId = "brown" | "lightblue" | "pink" | "orange" | "red" | "yellow" | "green" | "darkblue" | "railroad" | "utility";
 
-export const GROUP_COLORS: Record<GroupId, string> = {
-  brown: "#955436",
-  lightblue: "#aae0fa",
-  pink: "#d93a96",
-  orange: "#f7941d",
-  red: "#ed1b24",
-  yellow: "#fef200",
-  green: "#1fb25a",
-  darkblue: "#0072bb",
-  railroad: "#2d2d2d",
-  utility: "#8fd18f",
-};
-
 /** rentLadder: [base, 1 house, 2 houses, 3 houses, 4 houses, hotel] */
 const property = (
   index: number,
@@ -108,6 +95,3 @@ BOARD.forEach((space, i) => {
   if (space.index !== i) throw new Error(`Board space ${i} has misordered index ${space.index}`);
 });
 
-export const RAILROAD_BASE_RENT = 25;
-export const UTILITY_MULTIPLIER_DICE = 4;
-export const UTILITY_MULTIPLIER_BOTH = 10;

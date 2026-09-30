@@ -104,15 +104,8 @@ async function runBotTurn(code: string): Promise<void> {
     if (!result.ok) return; // state stays authoritative; next snapshot read can retry later
 
     await persistGameState(game.id, game.code, result.state);
-    scheduleBotTurn(code, 1000);
+    // after a roll, let browsers finish the dice tumble and the pawn's walk (see Tokens.tsx)
+    const [d1, d2] = result.state.dice;
+    scheduleBotTurn(code, action.type === "roll" ? 2000 + 200 * (d1 + d2) : 1000);
   });
-}
-
-/** Called after a confirmed human action too (Phase 4 will move this to the socket layer). */
-export function kickIfBotTurn(code: string, state: GameState, gameId: string): void {
-  const actor = state.players[state.turn.playerIdx];
-  if (actor?.isBot && !actor.bankrupt && state.phase === "playing") {
-    scheduleBotTurn(code, 800);
-  }
-  void gameId;
 }
