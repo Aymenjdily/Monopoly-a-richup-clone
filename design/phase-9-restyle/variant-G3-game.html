@@ -1,0 +1,241 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>G3 — Daylight · game</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+ * { margin: 0; box-sizing: border-box; }
+ html, body { width: 1600px; height: 1000px; overflow: hidden; }
+ canvas { position: absolute; inset: 0; }
+ .ui { position: absolute; inset: 0; z-index: 2; }
+ 
+ :root { --bg: radial-gradient(900px 600px at 40% 40%, rgba(255,255,255,.85), transparent 70%), linear-gradient(180deg,#c9dcff 0%,#e3ddff 55%,#ffe3ef 100%); --vignette: rgba(90,84,224,.12); --panel: rgba(255,255,255,.94); --edge: #e4e3fb; --text: #1d2140; --muted: #6d7299; --on-table: #1d2140; --on-table-muted: #4b5080; --accent: #6c5ce7; --accent2: #8f7bff; --accent3: #4a3cc0; --accent-ink: #ffffff; --accent-soft: rgba(108,92,231,.22); --chip: #eeecff; --on-chip: #2b2a63; --row: #f4f3ff; --tip: #fff4cf; --deed-top: #f4f3ff; --tray: #d9d6f7; --n1: #ffffff; --n2: #ebeafb; --n3: #c4c1ea; --n-ink: #1d2140; --shadow: 0 14px 36px rgba(76,70,201,.2), inset 0 1px 0 #fff; --shadow-sm: 0 6px 16px rgba(76,70,201,.18); --title-shadow: rgba(108,92,231,.25); }
+ body { background: var(--bg); color: var(--text); font: 500 14px/1.4 Outfit, Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+ .ui::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 60%, var(--vignette) 100%); z-index: -1; }
+ .glass { position: absolute; background: var(--panel); border: 2px solid var(--edge); border-radius: 20px; box-shadow: var(--shadow); backdrop-filter: blur(10px); }
+ .muted { color: var(--muted); }
+ .coin { display: inline-block; width: 1em; height: 1em; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c451 45%, #c9962b 100%); box-shadow: 0 0 0 1.5px #a9781c inset, 0 1px 0 rgba(0,0,0,.25); vertical-align: -0.12em; margin-right: .3em; }
+ .brand { position: absolute; left: 24px; top: 20px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; color: var(--on-table); }
+ .gem { width: 34px; height: 34px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 3px 0 var(--accent3), inset 0 1px 0 rgba(255,255,255,.5); display: grid; place-items: center; font-size: 18px; }
+ .code { font: 700 13px 'JetBrains Mono', monospace; letter-spacing: .18em; padding: 4px 10px; border-radius: 999px; background: var(--chip); color: var(--on-chip); border: 1.5px solid var(--edge); }
+ .plates { position: absolute; left: 300px; right: 400px; top: 16px; display: flex; gap: 10px; justify-content: center; }
+ .plate { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px; background: var(--panel); border: 2px solid var(--edge); box-shadow: var(--shadow-sm); }
+ .plate.on { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm); transform: scale(1.06); }
+ .av { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), transparent 45%), var(--c); border: 2.5px solid #fff; box-shadow: 0 2px 0 rgba(0,0,0,.25); display: grid; place-items: center; font-weight: 800; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+ .plate b { display: block; font-weight: 700; font-size: 14px; line-height: 1.1; }
+ .plate .cash { font-weight: 800; font-size: 15px; }
+ .tag { font-size: 10px; font-weight: 800; letter-spacing: .08em; padding: 2px 7px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+ .tag.dim { background: var(--chip); color: var(--on-chip); }
+ .gbtn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 50px; padding: 0 22px; border-radius: 16px; font: 800 17px Outfit; letter-spacing: .05em; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3);
+   background: linear-gradient(180deg, var(--b1), var(--b2)); box-shadow: 0 5px 0 var(--b3), 0 12px 22px rgba(0,0,0,.28), inset 0 1.5px 0 rgba(255,255,255,.45); }
+ .gbtn.buy { --b1: #5fe08a; --b2: #27b35a; --b3: #178043; }
+ .gbtn.gold { --b1: #ffdf7a; --b2: #f0b429; --b3: #b57f12; color: #3d2a00; text-shadow: 0 1px 0 rgba(255,255,255,.5); }
+ .gbtn.pass { --b1: var(--n1); --b2: var(--n2); --b3: var(--n3); color: var(--n-ink); text-shadow: none; }
+ .gbtn.off { filter: saturate(.3) brightness(.95); opacity: .6; }
+ .rbtn { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 62px; height: 56px; border-radius: 16px; font-size: 20px; background: linear-gradient(180deg, var(--n1), var(--n2)); box-shadow: 0 4px 0 var(--n3), inset 0 1.5px 0 rgba(255,255,255,.4); color: var(--n-ink); }
+ .rbtn small { font-size: 10px; font-weight: 700; letter-spacing: .04em; margin-top: -2px; }
+ .deed { left: 24px; top: 96px; width: 300px; overflow: hidden; }
+ .deed-top { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--deed-top); border-bottom: 2px solid var(--edge); }
+ .lm { width: 56px; height: 56px; border-radius: 16px; background: var(--chip); display: grid; place-items: center; font-size: 32px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+ .deed h3 { font-weight: 800; font-size: 24px; letter-spacing: -.02em; line-height: 1; }
+ .deed small { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; color: var(--muted); white-space: nowrap; display: block; margin-bottom: 4px; }
+ .rents { padding: 10px 14px 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+ .rent { border-radius: 12px; background: var(--row); padding: 6px 4px; text-align: center; }
+ .rent span { display: block; font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+ .rent b { font-weight: 800; font-size: 15px; }
+ .tip { margin: 8px 14px; padding: 8px 10px; border-radius: 12px; background: var(--tip); font-size: 12.5px; font-weight: 600; }
+ .deed-btns { display: flex; gap: 10px; padding: 8px 14px 18px; }
+ .side { right: 24px; top: 84px; bottom: 24px; width: 350px; display: flex; flex-direction: column; overflow: hidden; }
+ .side-tabs { display: flex; gap: 6px; padding: 12px; border-bottom: 2px solid var(--edge); }
+ .side-tabs span { flex: 1; text-align: center; padding: 8px 0; border-radius: 12px; font-weight: 700; font-size: 13px; color: var(--muted); }
+ .side-tabs span.on { background: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 var(--accent3); }
+ .turnhdr { padding: 12px 16px 4px; font-size: 11px; font-weight: 800; letter-spacing: .12em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+ .turnhdr i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+ .evt { display: flex; align-items: center; gap: 10px; margin: 4px 12px; padding: 8px 10px; border-radius: 14px; background: var(--row); font-size: 13.5px; }
+ .evt .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--chip); display: grid; place-items: center; font-size: 16px; flex: none; }
+ .evt b { font-weight: 700; }
+ .amt { margin-left: auto; font-weight: 800; font-size: 13px; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+ .amt.plus { background: #d8f7e3; color: #12713a; } .amt.minus { background: #ffe0e0; color: #b02a2a; } .amt.flat { background: var(--chip); color: var(--on-chip); }
+ .dock { left: 50%; transform: translateX(calc(-50% - 150px)); bottom: 22px; padding: 12px 14px; display: flex; align-items: center; gap: 14px; border-radius: 26px; }
+ .tray { display: flex; gap: 8px; padding: 8px 10px; border-radius: 16px; background: var(--tray); box-shadow: inset 0 3px 8px rgba(0,0,0,.35); }
+ .d { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(180deg,#fff,#e9e9f2); box-shadow: 0 3px 0 #b9bbcc; display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); padding: 7px; }
+ .d i { width: 7px; height: 7px; border-radius: 50%; background: #1d2140; place-self: center; }
+ .dock-info b { display: block; font-weight: 800; font-size: 17px; } .dock-info span { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+ .wallet { left: 24px; bottom: 22px; padding: 12px 18px; }
+ .wallet small { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; color: var(--muted); display: block; }
+ .wallet b { font-weight: 800; font-size: 30px; letter-spacing: -.02em; }
+ .hero { position: absolute; left: 96px; top: 150px; width: 540px; color: var(--on-table); }
+ .hero h1 { font: 800 96px/0.95 Outfit; letter-spacing: -.04em; text-shadow: 0 6px 0 var(--title-shadow); }
+ .hero h1 em { font-style: normal; color: var(--accent); }
+ .hero p { font-size: 19px; font-weight: 500; margin: 22px 0 28px; max-width: 460px; color: var(--on-table-muted); }
+ .start { position: relative; width: 480px; padding: 18px; }
+ .field { height: 52px; border-radius: 14px; background: var(--row); border: 2px solid var(--edge); display: flex; align-items: center; padding: 0 16px; font-weight: 700; font-size: 17px; }
+ .cbox { width: 46px; height: 54px; border-radius: 12px; background: var(--row); border: 2px solid var(--edge); display: grid; place-items: center; font: 800 22px Outfit; }
+ .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--muted); }
+ .or::before, .or::after { content: ""; flex: 1; height: 2px; background: var(--edge); border-radius: 2px; }
+
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<script src="board-scene.js"></script>
+</head><body>
+<div class="ui">
+<div class="brand"><span class="gem">🎲</span>Dice &amp; Deeds<span class="code">7GH6J9</span></div>
+<div class="plates">
+  <div class="plate on"><div class="av" style="--c:#e5484d">S</div><div><b>Sasha</b><span class="cash"><i class="coin"></i>1,240</span></div><span class="tag">YOUR TURN</span></div>
+  <div class="plate"><div class="av" style="--c:#f5a623">J</div><div><b>Juno</b><span class="cash"><i class="coin"></i>860</span></div></div>
+  <div class="plate"><div class="av" style="--c:#e0b400">🤖</div><div><b>Dice Bot</b><span class="cash"><i class="coin"></i>1,020</span></div><span class="tag dim">JAIL</span></div>
+  <div class="plate"><div class="av" style="--c:#46a758">M</div><div><b>Marek</b><span class="cash"><i class="coin"></i>430</span></div></div>
+</div>
+<div class="glass deed">
+  <div class="deed-top"><div class="lm">🕌</div><div><small>TURKEY · FOR SALE</small><h3>Istanbul</h3></div><span class="amt flat" style="font-size:16px"><i class="coin"></i>240</span></div>
+  <div class="rents">
+    <div class="rent"><span>RENT</span><b>$20</b></div><div class="rent"><span>FULL SET</span><b>$40</b></div><div class="rent"><span>1 HOUSE</span><b>$100</b></div>
+    <div class="rent"><span>2 HOUSES</span><b>$300</b></div><div class="rent"><span>3 HOUSES</span><b>$750</b></div><div class="rent"><span>HOTEL</span><b>$1,100</b></div>
+  </div>
+  <div class="tip">💡 <b>Good buy</b> — starts your Turkey set, you keep $1,000.</div>
+  <div class="deed-btns"><span class="gbtn buy" style="flex:1">BUY <i class="coin" style="margin:0 0 0 4px"></i>240</span><span class="gbtn pass">PASS</span></div>
+</div>
+<div class="glass side">
+  <div class="side-tabs"><span class="on">📜 History</span><span>💡 Guide</span><span>🏙️ Cities</span></div>
+  <div class="turnhdr"><i style="--c:#e5484d"></i>TURN 15 · SASHA · NOW</div>
+  <div class="evt"><div class="ic">🎲</div><div><b>Sasha</b> rolled 4 + 3</div><span class="amt flat">7</span></div>
+  <div class="evt"><div class="ic">🕌</div><div>Landed on <b>Istanbul</b></div><span class="amt flat"><i class="coin"></i>240</span></div>
+  <div class="turnhdr"><i style="--c:#46a758"></i>TURN 14 · MAREK</div>
+  <div class="evt"><div class="ic">💸</div><div><b>Marek</b> paid you rent · Madrid</div><span class="amt plus">+$180</span></div>
+  <div class="turnhdr"><i style="--c:#e0b400"></i>TURN 13 · DICE BOT</div>
+  <div class="evt"><div class="ic">🚔</div><div><b>Dice Bot</b> went to jail</div></div>
+  <div class="turnhdr"><i style="--c:#f5a623"></i>TURN 12 · JUNO</div>
+  <div class="evt"><div class="ic">➡️</div><div><b>Juno</b> passed GO</div><span class="amt plus">+$200</span></div>
+  <div class="evt"><div class="ic">🏠</div><div><b>Juno</b> built on Osaka</div><span class="amt minus">−$50</span></div>
+</div>
+<div class="glass wallet"><small>YOUR CASH</small><b><i class="coin"></i>1,240</b></div>
+<div class="glass dock">
+  <div class="tray"><div class="d"><i style="grid-area:1/1"></i><i style="grid-area:1/3"></i><i style="grid-area:3/1"></i><i style="grid-area:3/3"></i></div><div class="d"><i style="grid-area:1/1"></i><i style="grid-area:2/2"></i><i style="grid-area:3/3"></i></div></div><div class="dock-info"><b>You rolled 7</b><span>Istanbul · decide to buy or pass</span></div>
+  <span class="rbtn">🏗️<small>Build</small></span><span class="rbtn">🏦<small>Mortgage</small></span>
+  <span class="gbtn gold off">END TURN</span>
+</div></div>
+<script type="module">
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const FLAG = {
+  IT: [["v", "#009246", "#f4f4f5", "#ce2b37"]], JP: [["jp"]], TH: [["h5", "#a51931", "#f4f5f8", "#2d2a4a", "#f4f5f8", "#a51931"]],
+  ES: [["h3", "#aa151b", "#f1bf00", "#aa151b"]], TR: [["tr"]], DE: [["h3", "#111", "#dd0000", "#ffce00"]], BR: [["br"]], US: [["us"]],
+};
+function flag(ctx, code, x, y, w, h, K) {
+  ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.clip();
+  const [spec] = FLAG[code]; const kind = spec[0];
+  if (kind === "v") spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x + (i * w) / 3, y, w / 3 + 1, h); });
+  else if (kind === "h3") { const hs = [0.25, 0.5, 0.25]; let yy = y; spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x, yy, w, h * hs[i] + 1); yy += h * hs[i]; }); }
+  else if (kind === "h5") { const hs = [1, 1, 2, 1, 1]; let yy = y; spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x, yy, w, (h * hs[i]) / 6 + 1); yy += (h * hs[i]) / 6; }); }
+  else if (kind === "jp") { ctx.fillStyle = "#f4f4f5"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#bc002d"; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, h * 0.28, 0, 7); ctx.fill(); }
+  else if (kind === "tr") { ctx.fillStyle = "#e30a17"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + w * 0.4, y + h / 2, h * 0.25, 0, 7); ctx.fill(); ctx.fillStyle = "#e30a17"; ctx.beginPath(); ctx.arc(x + w * 0.45, y + h / 2, h * 0.2, 0, 7); ctx.fill(); }
+  else if (kind === "br") { ctx.fillStyle = "#009c3b"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#ffdf00"; ctx.beginPath(); ctx.moveTo(x + w / 2, y + h * 0.12); ctx.lineTo(x + w * 0.9, y + h / 2); ctx.lineTo(x + w / 2, y + h * 0.88); ctx.lineTo(x + w * 0.1, y + h / 2); ctx.fill(); ctx.fillStyle = "#002776"; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, h * 0.2, 0, 7); ctx.fill(); }
+  else if (kind === "us") { for (let i = 0; i < 7; i++) { ctx.fillStyle = i % 2 ? "#f4f4f5" : "#b22234"; ctx.fillRect(x, y + (i * h) / 7, w, h / 7 + 1); } ctx.fillStyle = "#3c3b6e"; ctx.fillRect(x, y, w * 0.45, h * 0.55); }
+  ctx.restore();
+  ctx.lineWidth = 2; ctx.strokeStyle = K.line; ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.stroke();
+}
+function wrap(ctx, text, maxW) {
+  if (ctx.measureText(text).width <= maxW || !text.includes(" ")) return [text];
+  const words = text.split(" "); const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+function makeTile(K) {
+  return function (ctx, w, h, info, { rr, fit }) {
+    const { t, P, owner, mortgaged, active, country } = info;
+    rr(ctx, 3, 3, w - 6, h - 6, K.radius, K.bg, active ? K.accent : K.line, active ? 7 : 3);
+    const side = P.side, vert = side === "left" || side === "right";
+    const text = (s, x, y, size, weight, color, font, align = "left", ls = 0) => {
+      ctx.font = weight + " " + size + "px " + font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+      ctx.letterSpacing = ls + "px"; ctx.fillText(s, x, y); ctx.letterSpacing = "0px";
+    };
+    if (side === "corner") {
+      const big = { go: "GO", jail: "JAIL", parking: "FREE", gotojail: "GO TO" }[t.k];
+      const second = { go: "", jail: "", parking: "PARKING", gotojail: "JAIL" }[t.k];
+      const sub = { go: "collect $200  ←", jail: "just visiting", parking: "take a breath", gotojail: "do not pass go" }[t.k];
+      text(big, w / 2, second ? h * 0.42 : h * 0.56, second ? 64 : 120, 700, K.text, K.font, "center", K.tight);
+      if (second) text(second, w / 2, h * 0.6, 64, 700, K.text, K.font, "center", K.tight);
+      text(sub.toUpperCase(), w / 2, h * 0.82, 22, 500, K.muted, K.mono, "center", 3);
+      if (t.k === "go") { ctx.fillStyle = K.accent; ctx.fillRect(w * 0.25, h * 0.68, w * 0.5, 5); }
+      return;
+    }
+    // owner accent on the outer edge
+    if (owner) {
+      ctx.fillStyle = owner;
+      if (side === "bottom") rr(ctx, 16, h - 22, w - 32, 9, 5, owner);
+      if (side === "top") rr(ctx, 16, 13, w - 32, 9, 5, owner);
+      if (side === "left") rr(ctx, 13, 16, 9, h - 32, 5, owner);
+      if (side === "right") rr(ctx, w - 22, 16, 9, h - 32, 5, owner);
+    }
+    if (mortgaged) {
+      ctx.save(); ctx.beginPath(); ctx.roundRect(6, 6, w - 12, h - 12, K.radius); ctx.clip();
+      ctx.strokeStyle = K.hatch; ctx.lineWidth = 6;
+      for (let k = -h; k < w + h; k += 26) { ctx.beginPath(); ctx.moveTo(k, 0); ctx.lineTo(k - h, h); ctx.stroke(); }
+      ctx.restore();
+    }
+    const label = { city: (country || "").toUpperCase(), rail: "RAILWAY", util: "UTILITY", tax: "TAX", chance: "CHANCE", chest: "COMMUNITY" }[t.k];
+    const name = { chance: "Chance", chest: "Chest" }[t.k] ?? t.n;
+    const priceTxt = mortgaged ? "MORTGAGED" : t.k === "tax" ? "−$" + t.p : t.p ? "$" + t.p : "";
+    const priceColor = mortgaged ? K.danger : owner ?? K.muted;
+    const pad = vert ? (side === "left" ? 40 : 34) : 26;
+    const x0 = vert && side === "right" ? 40 : pad;
+    const topPad = side === "top" ? 40 : 30;
+    // label + flag
+    text(label, x0, topPad + 20, 21, 500, K.muted, K.mono, "left", 3);
+    if (t.c) flag(ctx, t.c, (vert ? w - 90 : w - 70) - (side === "right" ? 0 : 0), topPad - 2, 44, 29, K);
+    // glyph for specials
+    if (t.k === "chance" || t.k === "chest") {
+      text(t.k === "chance" ? "?" : "◆", vert ? w - 80 : w / 2, vert ? h * 0.72 : h * 0.62, vert ? 110 : 150, 600, K.accent, K.font, "center");
+    }
+    // name
+    ctx.font = "700 44px " + K.font; ctx.letterSpacing = K.tight + "px";
+    const maxW = (vert ? w * 0.62 : w) - pad * 2;
+    let size = 44; while (ctx.measureText(name).width > maxW * 1.9 && size > 26) { size -= 2; ctx.font = "700 " + size + "px " + K.font; }
+    const lines = wrap(ctx, name, maxW);
+    if (lines.some((l) => ctx.measureText(l).width > maxW)) { size = Math.max(26, size - 8); ctx.font = "700 " + size + "px " + K.font; }
+    ctx.letterSpacing = "0px";
+    const nameY = vert ? topPad + 20 + 60 : (t.k === "chance" || t.k === "chest" ? topPad + 90 : topPad + 20 + 72);
+    lines.forEach((l, i) => text(l, x0, nameY + i * size * 1.08, size, 700, K.text, K.font, "left", K.tight));
+    // price
+    if (priceTxt) text(priceTxt, x0, (side === "bottom" ? h - 44 : side === "top" ? h - 30 : h - 34), mortgaged ? 22 : 30, 500, priceColor, K.mono, "left", mortgaged ? 2 : 0);
+  };
+}
+
+await Promise.all(["700 44px Outfit", "800 190px Outfit", "700 44px Inter", "600 44px Inter", "700 64px Inter", "500 22px 'JetBrains Mono'", "700 64px 'JetBrains Mono'"].map((f) => document.fonts.load(f)));
+const theme = {
+    slab: "#4b46c9", slabRough: 0.35, slabMetal: 0.1, tileSide: "#d8d6f2", tileRough: 0.7, bars: "#4b46c9",
+    edgeGlow: "#a29bff", activeGlow: "rgba(108,92,231,0.45)", ring: "#a29bff", pipGlow: false,
+    dieA: ["#ff6b6b","#ffffff"], dieB: ["#ffffff","#1d2140"],
+    tile: makeTile({ bg: "#ffffff", line: "#e4e3fb", text: "#1d2140", muted: "#5c6190", accent: "#6c5ce7", danger: "#d93838", hatch: "rgba(0,0,0,0.06)", font: "Outfit", mono: "Outfit", radius: 20, tight: -1 }),
+    center: (ctx, w, h) => {
+      ctx.fillStyle = "#5a54e0"; ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 48); ctx.fill();
+      const g = ctx.createRadialGradient(w / 2, h * 0.44, 40, w / 2, h * 0.44, 900); g.addColorStop(0, "rgba(255,255,255,0.3)"); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.lineWidth = 6; ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.beginPath(); ctx.roundRect(60, 60, w - 120, h - 120, 36); ctx.stroke();
+      ctx.setLineDash([4, 22]); ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.beginPath(); ctx.roundRect(96, 96, w - 192, h - 192, 28); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign = "center"; ctx.font = "800 190px Outfit"; ctx.letterSpacing = "-6px";
+      ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fillText("Dice & Deeds", w / 2, h * 0.47 + 12);
+      ctx.fillStyle = "#ffffff"; ctx.fillText("Dice & Deeds", w / 2, h * 0.47); ctx.letterSpacing = "14px";
+      ctx.font = "700 40px Outfit"; ctx.fillStyle = "#d6d3ff"; ctx.fillText("GO AROUND THE WORLD", w / 2, h * 0.47 + 100); ctx.letterSpacing = "0px";
+    },
+    building: (THREE, c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.1 }),
+    pawn: (THREE, c) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.2, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.08 }),
+  };
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(1600, 1000);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.insertBefore(renderer.domElement, document.body.firstChild);
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.5;
+scene.add(new THREE.HemisphereLight("#ffffff", "#cfd3ff", 0.8));
+const key = new THREE.DirectionalLight("#fff6e8", 2.1); key.position.set(-6, 14, 8); key.castShadow = true; key.shadow.mapSize.set(4096, 4096);
+Object.assign(key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 }); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; scene.add(key);
+const rim = new THREE.DirectionalLight("#ffffff", 0.9); rim.position.set(9, 5, -9); scene.add(rim);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ color: "#000", opacity: 0.22 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.4; ground.receiveShadow = true; scene.add(ground);
+RS.build({ THREE, RoundedBoxGeometry, renderer, scene, theme });
+const cam = new THREE.PerspectiveCamera(27, 1.6, 0.1, 100);
+cam.position.set(2.8, 25.6, 21.2); cam.lookAt(0.1, -0.9, 0.1);
+cam.setViewOffset(1600, 1000, 150, 0, 1600, 1000);
+renderer.render(scene, cam);
+</script></body></html>

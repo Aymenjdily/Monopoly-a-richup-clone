@@ -1,0 +1,217 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>G2 — Felt table · home</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+ * { margin: 0; box-sizing: border-box; }
+ html, body { width: 1600px; height: 1000px; overflow: hidden; }
+ canvas { position: absolute; inset: 0; }
+ .ui { position: absolute; inset: 0; z-index: 2; }
+ 
+ :root { --bg: radial-gradient(1100px 760px at 40% 46%, #2f9a70, #17563f 62%, #0d3526 100%); --vignette: rgba(0,0,0,.45); --panel: rgba(253,248,236,.96); --edge: #dcc9a0; --text: #2a2118; --muted: #7c6a52; --on-table: #fdf3d6; --on-table-muted: #cfe6d8; --accent: #d9a441; --accent2: #b8862f; --accent3: #8a6420; --accent-ink: #2a1c00; --accent-soft: rgba(217,164,65,.35); --chip: #f1e6cc; --on-chip: #2a2118; --row: #f5ecd7; --tip: #fbefc9; --deed-top: #f5ecd7; --tray: #14503b; --n1: #fffaf0; --n2: #eadcbd; --n3: #c4b08a; --n-ink: #2a2118; --shadow: 0 16px 40px rgba(0,0,0,.4), inset 0 1px 0 #fff; --shadow-sm: 0 6px 16px rgba(0,0,0,.3); --title-shadow: rgba(0,0,0,.3); }
+ body { background: var(--bg); color: var(--text); font: 500 14px/1.4 Outfit, Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+ .ui::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(120% 120% at 50% 45%, transparent 60%, var(--vignette) 100%); z-index: -1; }
+ .glass { position: absolute; background: var(--panel); border: 2px solid var(--edge); border-radius: 20px; box-shadow: var(--shadow); backdrop-filter: blur(10px); }
+ .muted { color: var(--muted); }
+ .coin { display: inline-block; width: 1em; height: 1em; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff3b0, #f5c451 45%, #c9962b 100%); box-shadow: 0 0 0 1.5px #a9781c inset, 0 1px 0 rgba(0,0,0,.25); vertical-align: -0.12em; margin-right: .3em; }
+ .brand { position: absolute; left: 24px; top: 20px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 20px; letter-spacing: -.02em; color: var(--on-table); }
+ .gem { width: 34px; height: 34px; border-radius: 11px; background: linear-gradient(135deg, var(--accent), var(--accent2)); box-shadow: 0 3px 0 var(--accent3), inset 0 1px 0 rgba(255,255,255,.5); display: grid; place-items: center; font-size: 18px; }
+ .code { font: 700 13px 'JetBrains Mono', monospace; letter-spacing: .18em; padding: 4px 10px; border-radius: 999px; background: var(--chip); color: var(--on-chip); border: 1.5px solid var(--edge); }
+ .plates { position: absolute; left: 300px; right: 400px; top: 16px; display: flex; gap: 10px; justify-content: center; }
+ .plate { display: flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px; background: var(--panel); border: 2px solid var(--edge); box-shadow: var(--shadow-sm); }
+ .plate.on { border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft), var(--shadow-sm); transform: scale(1.06); }
+ .av { width: 40px; height: 40px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.55), transparent 45%), var(--c); border: 2.5px solid #fff; box-shadow: 0 2px 0 rgba(0,0,0,.25); display: grid; place-items: center; font-weight: 800; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.35); }
+ .plate b { display: block; font-weight: 700; font-size: 14px; line-height: 1.1; }
+ .plate .cash { font-weight: 800; font-size: 15px; }
+ .tag { font-size: 10px; font-weight: 800; letter-spacing: .08em; padding: 2px 7px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); }
+ .tag.dim { background: var(--chip); color: var(--on-chip); }
+ .gbtn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 50px; padding: 0 22px; border-radius: 16px; font: 800 17px Outfit; letter-spacing: .05em; color: #fff; text-shadow: 0 1px 0 rgba(0,0,0,.3);
+   background: linear-gradient(180deg, var(--b1), var(--b2)); box-shadow: 0 5px 0 var(--b3), 0 12px 22px rgba(0,0,0,.28), inset 0 1.5px 0 rgba(255,255,255,.45); }
+ .gbtn.buy { --b1: #5fe08a; --b2: #27b35a; --b3: #178043; }
+ .gbtn.gold { --b1: #ffdf7a; --b2: #f0b429; --b3: #b57f12; color: #3d2a00; text-shadow: 0 1px 0 rgba(255,255,255,.5); }
+ .gbtn.pass { --b1: var(--n1); --b2: var(--n2); --b3: var(--n3); color: var(--n-ink); text-shadow: none; }
+ .gbtn.off { filter: saturate(.3) brightness(.95); opacity: .6; }
+ .rbtn { display: inline-flex; flex-direction: column; align-items: center; justify-content: center; width: 62px; height: 56px; border-radius: 16px; font-size: 20px; background: linear-gradient(180deg, var(--n1), var(--n2)); box-shadow: 0 4px 0 var(--n3), inset 0 1.5px 0 rgba(255,255,255,.4); color: var(--n-ink); }
+ .rbtn small { font-size: 10px; font-weight: 700; letter-spacing: .04em; margin-top: -2px; }
+ .deed { left: 24px; top: 96px; width: 300px; overflow: hidden; }
+ .deed-top { display: flex; align-items: center; gap: 12px; padding: 14px; background: var(--deed-top); border-bottom: 2px solid var(--edge); }
+ .lm { width: 56px; height: 56px; border-radius: 16px; background: var(--chip); display: grid; place-items: center; font-size: 32px; box-shadow: inset 0 -3px 0 rgba(0,0,0,.12); }
+ .deed h3 { font-weight: 800; font-size: 24px; letter-spacing: -.02em; line-height: 1; }
+ .deed small { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; color: var(--muted); white-space: nowrap; display: block; margin-bottom: 4px; }
+ .rents { padding: 10px 14px 4px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+ .rent { border-radius: 12px; background: var(--row); padding: 6px 4px; text-align: center; }
+ .rent span { display: block; font-size: 10px; font-weight: 700; letter-spacing: .06em; color: var(--muted); }
+ .rent b { font-weight: 800; font-size: 15px; }
+ .tip { margin: 8px 14px; padding: 8px 10px; border-radius: 12px; background: var(--tip); font-size: 12.5px; font-weight: 600; }
+ .deed-btns { display: flex; gap: 10px; padding: 8px 14px 18px; }
+ .side { right: 24px; top: 84px; bottom: 24px; width: 350px; display: flex; flex-direction: column; overflow: hidden; }
+ .side-tabs { display: flex; gap: 6px; padding: 12px; border-bottom: 2px solid var(--edge); }
+ .side-tabs span { flex: 1; text-align: center; padding: 8px 0; border-radius: 12px; font-weight: 700; font-size: 13px; color: var(--muted); }
+ .side-tabs span.on { background: var(--accent); color: var(--accent-ink); box-shadow: 0 3px 0 var(--accent3); }
+ .turnhdr { padding: 12px 16px 4px; font-size: 11px; font-weight: 800; letter-spacing: .12em; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+ .turnhdr i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); }
+ .evt { display: flex; align-items: center; gap: 10px; margin: 4px 12px; padding: 8px 10px; border-radius: 14px; background: var(--row); font-size: 13.5px; }
+ .evt .ic { width: 32px; height: 32px; border-radius: 10px; background: var(--chip); display: grid; place-items: center; font-size: 16px; flex: none; }
+ .evt b { font-weight: 700; }
+ .amt { margin-left: auto; font-weight: 800; font-size: 13px; padding: 2px 9px; border-radius: 999px; white-space: nowrap; }
+ .amt.plus { background: #d8f7e3; color: #12713a; } .amt.minus { background: #ffe0e0; color: #b02a2a; } .amt.flat { background: var(--chip); color: var(--on-chip); }
+ .dock { left: 50%; transform: translateX(calc(-50% - 150px)); bottom: 22px; padding: 12px 14px; display: flex; align-items: center; gap: 14px; border-radius: 26px; }
+ .tray { display: flex; gap: 8px; padding: 8px 10px; border-radius: 16px; background: var(--tray); box-shadow: inset 0 3px 8px rgba(0,0,0,.35); }
+ .d { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(180deg,#fff,#e9e9f2); box-shadow: 0 3px 0 #b9bbcc; display: grid; grid-template: repeat(3,1fr)/repeat(3,1fr); padding: 7px; }
+ .d i { width: 7px; height: 7px; border-radius: 50%; background: #1d2140; place-self: center; }
+ .dock-info b { display: block; font-weight: 800; font-size: 17px; } .dock-info span { font-size: 12.5px; color: var(--muted); font-weight: 600; }
+ .wallet { left: 24px; bottom: 22px; padding: 12px 18px; }
+ .wallet small { font-size: 10.5px; font-weight: 800; letter-spacing: .14em; color: var(--muted); display: block; }
+ .wallet b { font-weight: 800; font-size: 30px; letter-spacing: -.02em; }
+ .hero { position: absolute; left: 96px; top: 150px; width: 540px; color: var(--on-table); }
+ .hero h1 { font: 800 96px/0.95 Outfit; letter-spacing: -.04em; text-shadow: 0 6px 0 var(--title-shadow); }
+ .hero h1 em { font-style: normal; color: var(--accent); }
+ .hero p { font-size: 19px; font-weight: 500; margin: 22px 0 28px; max-width: 460px; color: var(--on-table-muted); }
+ .start { position: relative; width: 480px; padding: 18px; }
+ .field { height: 52px; border-radius: 14px; background: var(--row); border: 2px solid var(--edge); display: flex; align-items: center; padding: 0 16px; font-weight: 700; font-size: 17px; }
+ .cbox { width: 46px; height: 54px; border-radius: 12px; background: var(--row); border: 2px solid var(--edge); display: grid; place-items: center; font: 800 22px Outfit; }
+ .or { display: flex; align-items: center; gap: 10px; margin: 16px 0 12px; font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--muted); }
+ .or::before, .or::after { content: ""; flex: 1; height: 2px; background: var(--edge); border-radius: 2px; }
+
+</style>
+<script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js", "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/" } }</script>
+<script src="board-scene.js"></script>
+</head><body>
+<div class="ui">
+<div class="brand"><span class="gem">🎲</span>Dice &amp; Deeds</div>
+<div class="hero">
+  <span class="code" style="letter-spacing:.1em">● 2–6 PLAYERS · FREE · NO ACCOUNT</span>
+  <h1 style="margin-top:20px">Dice <em>&amp;</em><br>Deeds</h1>
+  <p>Roll, buy cities around the world, build — and bankrupt your friends on a real 3D board.</p>
+  <div class="glass start" style="color:var(--text)">
+    <div style="display:flex;gap:10px"><div class="field" style="flex:1">Sasha</div><span class="gbtn buy" style="height:52px">PLAY ▶</span></div>
+    <div class="or">OR JOIN A ROOM</div>
+    <div style="display:flex;gap:7px;align-items:center"><div class="cbox">X</div><div class="cbox">4</div><div class="cbox">K</div><div class="cbox" style="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)"></div><div class="cbox"></div><div class="cbox"></div><span class="gbtn gold" style="height:54px;margin-left:auto">JOIN</span></div>
+  </div>
+</div></div>
+<script type="module">
+import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+
+const FLAG = {
+  IT: [["v", "#009246", "#f4f4f5", "#ce2b37"]], JP: [["jp"]], TH: [["h5", "#a51931", "#f4f5f8", "#2d2a4a", "#f4f5f8", "#a51931"]],
+  ES: [["h3", "#aa151b", "#f1bf00", "#aa151b"]], TR: [["tr"]], DE: [["h3", "#111", "#dd0000", "#ffce00"]], BR: [["br"]], US: [["us"]],
+};
+function flag(ctx, code, x, y, w, h, K) {
+  ctx.save(); ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.clip();
+  const [spec] = FLAG[code]; const kind = spec[0];
+  if (kind === "v") spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x + (i * w) / 3, y, w / 3 + 1, h); });
+  else if (kind === "h3") { const hs = [0.25, 0.5, 0.25]; let yy = y; spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x, yy, w, h * hs[i] + 1); yy += h * hs[i]; }); }
+  else if (kind === "h5") { const hs = [1, 1, 2, 1, 1]; let yy = y; spec.slice(1).forEach((c, i) => { ctx.fillStyle = c; ctx.fillRect(x, yy, w, (h * hs[i]) / 6 + 1); yy += (h * hs[i]) / 6; }); }
+  else if (kind === "jp") { ctx.fillStyle = "#f4f4f5"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#bc002d"; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, h * 0.28, 0, 7); ctx.fill(); }
+  else if (kind === "tr") { ctx.fillStyle = "#e30a17"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(x + w * 0.4, y + h / 2, h * 0.25, 0, 7); ctx.fill(); ctx.fillStyle = "#e30a17"; ctx.beginPath(); ctx.arc(x + w * 0.45, y + h / 2, h * 0.2, 0, 7); ctx.fill(); }
+  else if (kind === "br") { ctx.fillStyle = "#009c3b"; ctx.fillRect(x, y, w, h); ctx.fillStyle = "#ffdf00"; ctx.beginPath(); ctx.moveTo(x + w / 2, y + h * 0.12); ctx.lineTo(x + w * 0.9, y + h / 2); ctx.lineTo(x + w / 2, y + h * 0.88); ctx.lineTo(x + w * 0.1, y + h / 2); ctx.fill(); ctx.fillStyle = "#002776"; ctx.beginPath(); ctx.arc(x + w / 2, y + h / 2, h * 0.2, 0, 7); ctx.fill(); }
+  else if (kind === "us") { for (let i = 0; i < 7; i++) { ctx.fillStyle = i % 2 ? "#f4f4f5" : "#b22234"; ctx.fillRect(x, y + (i * h) / 7, w, h / 7 + 1); } ctx.fillStyle = "#3c3b6e"; ctx.fillRect(x, y, w * 0.45, h * 0.55); }
+  ctx.restore();
+  ctx.lineWidth = 2; ctx.strokeStyle = K.line; ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.stroke();
+}
+function wrap(ctx, text, maxW) {
+  if (ctx.measureText(text).width <= maxW || !text.includes(" ")) return [text];
+  const words = text.split(" "); const mid = Math.ceil(words.length / 2);
+  return [words.slice(0, mid).join(" "), words.slice(mid).join(" ")];
+}
+function makeTile(K) {
+  return function (ctx, w, h, info, { rr, fit }) {
+    const { t, P, owner, mortgaged, active, country } = info;
+    rr(ctx, 3, 3, w - 6, h - 6, K.radius, K.bg, active ? K.accent : K.line, active ? 7 : 3);
+    const side = P.side, vert = side === "left" || side === "right";
+    const text = (s, x, y, size, weight, color, font, align = "left", ls = 0) => {
+      ctx.font = weight + " " + size + "px " + font; ctx.fillStyle = color; ctx.textAlign = align; ctx.textBaseline = "alphabetic";
+      ctx.letterSpacing = ls + "px"; ctx.fillText(s, x, y); ctx.letterSpacing = "0px";
+    };
+    if (side === "corner") {
+      const big = { go: "GO", jail: "JAIL", parking: "FREE", gotojail: "GO TO" }[t.k];
+      const second = { go: "", jail: "", parking: "PARKING", gotojail: "JAIL" }[t.k];
+      const sub = { go: "collect $200  ←", jail: "just visiting", parking: "take a breath", gotojail: "do not pass go" }[t.k];
+      text(big, w / 2, second ? h * 0.42 : h * 0.56, second ? 64 : 120, 700, K.text, K.font, "center", K.tight);
+      if (second) text(second, w / 2, h * 0.6, 64, 700, K.text, K.font, "center", K.tight);
+      text(sub.toUpperCase(), w / 2, h * 0.82, 22, 500, K.muted, K.mono, "center", 3);
+      if (t.k === "go") { ctx.fillStyle = K.accent; ctx.fillRect(w * 0.25, h * 0.68, w * 0.5, 5); }
+      return;
+    }
+    // owner accent on the outer edge
+    if (owner) {
+      ctx.fillStyle = owner;
+      if (side === "bottom") rr(ctx, 16, h - 22, w - 32, 9, 5, owner);
+      if (side === "top") rr(ctx, 16, 13, w - 32, 9, 5, owner);
+      if (side === "left") rr(ctx, 13, 16, 9, h - 32, 5, owner);
+      if (side === "right") rr(ctx, w - 22, 16, 9, h - 32, 5, owner);
+    }
+    if (mortgaged) {
+      ctx.save(); ctx.beginPath(); ctx.roundRect(6, 6, w - 12, h - 12, K.radius); ctx.clip();
+      ctx.strokeStyle = K.hatch; ctx.lineWidth = 6;
+      for (let k = -h; k < w + h; k += 26) { ctx.beginPath(); ctx.moveTo(k, 0); ctx.lineTo(k - h, h); ctx.stroke(); }
+      ctx.restore();
+    }
+    const label = { city: (country || "").toUpperCase(), rail: "RAILWAY", util: "UTILITY", tax: "TAX", chance: "CHANCE", chest: "COMMUNITY" }[t.k];
+    const name = { chance: "Chance", chest: "Chest" }[t.k] ?? t.n;
+    const priceTxt = mortgaged ? "MORTGAGED" : t.k === "tax" ? "−$" + t.p : t.p ? "$" + t.p : "";
+    const priceColor = mortgaged ? K.danger : owner ?? K.muted;
+    const pad = vert ? (side === "left" ? 40 : 34) : 26;
+    const x0 = vert && side === "right" ? 40 : pad;
+    const topPad = side === "top" ? 40 : 30;
+    // label + flag
+    text(label, x0, topPad + 20, 21, 500, K.muted, K.mono, "left", 3);
+    if (t.c) flag(ctx, t.c, (vert ? w - 90 : w - 70) - (side === "right" ? 0 : 0), topPad - 2, 44, 29, K);
+    // glyph for specials
+    if (t.k === "chance" || t.k === "chest") {
+      text(t.k === "chance" ? "?" : "◆", vert ? w - 80 : w / 2, vert ? h * 0.72 : h * 0.62, vert ? 110 : 150, 600, K.accent, K.font, "center");
+    }
+    // name
+    ctx.font = "700 44px " + K.font; ctx.letterSpacing = K.tight + "px";
+    const maxW = (vert ? w * 0.62 : w) - pad * 2;
+    let size = 44; while (ctx.measureText(name).width > maxW * 1.9 && size > 26) { size -= 2; ctx.font = "700 " + size + "px " + K.font; }
+    const lines = wrap(ctx, name, maxW);
+    if (lines.some((l) => ctx.measureText(l).width > maxW)) { size = Math.max(26, size - 8); ctx.font = "700 " + size + "px " + K.font; }
+    ctx.letterSpacing = "0px";
+    const nameY = vert ? topPad + 20 + 60 : (t.k === "chance" || t.k === "chest" ? topPad + 90 : topPad + 20 + 72);
+    lines.forEach((l, i) => text(l, x0, nameY + i * size * 1.08, size, 700, K.text, K.font, "left", K.tight));
+    // price
+    if (priceTxt) text(priceTxt, x0, (side === "bottom" ? h - 44 : side === "top" ? h - 30 : h - 34), mortgaged ? 22 : 30, 500, priceColor, K.mono, "left", mortgaged ? 2 : 0);
+  };
+}
+
+await Promise.all(["700 44px Outfit", "800 190px Outfit", "700 44px Inter", "600 44px Inter", "700 64px Inter", "500 22px 'JetBrains Mono'", "700 64px 'JetBrains Mono'"].map((f) => document.fonts.load(f)));
+const theme = {
+    slab: "#4a2c1a", slabRough: 0.35, slabMetal: 0.05, tileSide: "#dfd3b8", tileRough: 0.7, bars: "#d9a441",
+    edgeGlow: "#d9a441", activeGlow: "rgba(255,220,130,0.55)", ring: "#d9a441", pipGlow: false,
+    dieA: ["#c0392b","#ffffff"], dieB: ["#fdf9ef","#2a2118"],
+    tile: makeTile({ bg: "#fdf9ef", line: "#e4d8bb", text: "#2a2118", muted: "#6e5d46", accent: "#b8862f", danger: "#d93838", hatch: "rgba(0,0,0,0.06)", font: "Outfit", mono: "Outfit", radius: 20, tight: -1 }),
+    center: (ctx, w, h) => {
+      ctx.fillStyle = "#1b6147"; ctx.beginPath(); ctx.roundRect(8, 8, w - 16, h - 16, 48); ctx.fill();
+      const g = ctx.createRadialGradient(w / 2, h * 0.44, 40, w / 2, h * 0.44, 900); g.addColorStop(0, "rgba(120,230,170,0.3)"); g.addColorStop(1, "rgba(0,0,0,0)"); ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+      ctx.lineWidth = 6; ctx.strokeStyle = "rgba(253,243,214,0.45)"; ctx.beginPath(); ctx.roundRect(60, 60, w - 120, h - 120, 36); ctx.stroke();
+      ctx.setLineDash([4, 22]); ctx.lineWidth = 8; ctx.lineCap = "round"; ctx.beginPath(); ctx.roundRect(96, 96, w - 192, h - 192, 28); ctx.stroke(); ctx.setLineDash([]);
+      ctx.textAlign = "center"; ctx.font = "800 190px Outfit"; ctx.letterSpacing = "-6px";
+      ctx.fillStyle = "rgba(0,0,0,0.35)"; ctx.fillText("Dice & Deeds", w / 2, h * 0.47 + 12);
+      ctx.fillStyle = "#fdf3d6"; ctx.fillText("Dice & Deeds", w / 2, h * 0.47); ctx.letterSpacing = "14px";
+      ctx.font = "700 40px Outfit"; ctx.fillStyle = "#a8d9c0"; ctx.fillText("GO AROUND THE WORLD", w / 2, h * 0.47 + 100); ctx.letterSpacing = "0px";
+    },
+    building: (THREE, c) => new THREE.MeshStandardMaterial({ color: c, roughness: 0.35, metalness: 0.1 }),
+    pawn: (THREE, c) => new THREE.MeshPhysicalMaterial({ color: c, roughness: 0.2, metalness: 0.05, clearcoat: 1, clearcoatRoughness: 0.08 }),
+  };
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(1); renderer.setSize(1600, 1000);
+renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.toneMapping = THREE.NeutralToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace;
+document.body.insertBefore(renderer.domElement, document.body.firstChild);
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(renderer).fromScene(new RoomEnvironment(), 0.04).texture;
+scene.environmentIntensity = 0.5;
+scene.add(new THREE.HemisphereLight("#fff4dc", "#0e3526", 0.8));
+const key = new THREE.DirectionalLight("#fff6e8", 2.1); key.position.set(-6, 14, 8); key.castShadow = true; key.shadow.mapSize.set(4096, 4096);
+Object.assign(key.shadow.camera, { left: -10, right: 10, top: 10, bottom: -10, near: 1, far: 40 }); key.shadow.bias = -0.0004; key.shadow.normalBias = 0.02; scene.add(key);
+const rim = new THREE.DirectionalLight("#ffd98a", 0.9); rim.position.set(9, 5, -9); scene.add(rim);
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(80, 80), new THREE.ShadowMaterial({ color: "#000", opacity: 0.45 }));
+ground.rotation.x = -Math.PI / 2; ground.position.y = -0.4; ground.receiveShadow = true; scene.add(ground);
+RS.build({ THREE, RoundedBoxGeometry, renderer, scene, theme });
+const cam = new THREE.PerspectiveCamera(30, 1.6, 0.1, 100);
+cam.position.set(-1.4, 14.2, 19.2); cam.lookAt(-5.6, -0.6, 1.4);
+
+renderer.render(scene, cam);
+</script></body></html>
