@@ -5,11 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+import { getBoardView, setBoardView, subscribeBoardView, type BoardView } from "@/components/board3d/viewPref";
 import { hasWebGL } from "@/components/board3d/webgl";
 import { DeedCard } from "@/components/hud/DeedCard";
 import { PlayerBar } from "@/components/hud/PlayerBar";
 import { SideCard, type SideTab } from "@/components/hud/SideCard";
 import { TurnPill, Wallet } from "@/components/hud/TurnPill";
+import { ViewToggle } from "@/components/hud/ViewToggle";
 import { playSfx } from "@/components/sound/sfx";
 import { SoundToggle } from "@/components/sound/SoundToggle";
 import { useGameSounds } from "@/components/sound/useGameSounds";
@@ -34,7 +36,14 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
   const [drawer, setDrawer] = useState(false);
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [view, setView] = useState<BoardView>("3d");
   const inFlight = useRef(false);
+
+  // per-device camera preference (read after mount: localStorage is not available during SSR)
+  useEffect(() => {
+    queueMicrotask(() => setView(getBoardView()));
+    return subscribeBoardView(setView);
+  }, []);
   const seenPending = useRef<string | null>(null);
 
   useEffect(() => {
@@ -120,7 +129,7 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
       }}
     >
       <div className="absolute inset-0">
-        <GameScene state={state} myId={myId} onTileClick={openDeed} viewShiftX={wide ? DESKTOP_SHIFT : 0} />
+        <GameScene state={state} myId={myId} onTileClick={openDeed} viewShiftX={wide ? DESKTOP_SHIFT : 0} view={view} />
       </div>
 
       <div className="pointer-events-none absolute inset-0 z-10">
@@ -153,7 +162,8 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
 
         {wide ? (
           <>
-            <div className="absolute right-6 top-5">
+            <div className="absolute right-6 top-5 flex items-center gap-2">
+              <ViewToggle view={view} onChange={setBoardView} />
               <SoundToggle />
             </div>
             <div className="absolute bottom-6 right-6 top-[84px] w-[350px]">{side}</div>
@@ -166,6 +176,7 @@ export default function GameView({ code, socket, myId }: { code: string; socket:
             <button onClick={() => setDrawer(true)} className="gbtn gbtn-sm pointer-events-auto">
               📜 History
             </button>
+            <ViewToggle view={view} onChange={setBoardView} />
             <SoundToggle />
           </div>
         )}
