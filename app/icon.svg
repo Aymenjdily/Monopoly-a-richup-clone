@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e4b558"/>
+      <stop offset="1" stop-color="#b8862f"/>
+    </linearGradient>
+    <linearGradient id="d" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="1" stop-color="#f1e6cc"/>
+    </linearGradient>
+  </defs>
+  <!-- gold badge (same mark as the in-app logo) -->
+  <rect x="2" y="4" width="60" height="58" rx="15" fill="#8a6420"/>
+  <rect x="2" y="2" width="60" height="57" rx="15" fill="url(#g)"/>
+  <!-- die -->
+  <g transform="rotate(-10 32 31)">
+    <rect x="14" y="15" width="36" height="36" rx="9" fill="#4a2c1a" opacity=".35"/>
+    <rect x="14" y="12" width="36" height="36" rx="9" fill="url(#d)"/>
+    <g fill="#2a2118">
+      <circle cx="23.5" cy="21.5" r="3.6"/>
+      <circle cx="40.5" cy="21.5" r="3.6"/>
+      <circle cx="32" cy="30" r="3.6" fill="#c0392b"/>
+      <circle cx="23.5" cy="38.5" r="3.6"/>
+      <circle cx="40.5" cy="38.5" r="3.6"/>
+    </g>
+  </g>
+</svg>
